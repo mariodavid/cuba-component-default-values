@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             version="2.0">
+    <persistence-unit name="cuba-component-data-import"
+                      transaction-type="RESOURCE_LOCAL">
+        <class>de.diedavids.cuba.defaultvalues.entity.example.sales.Customer</class>
+        <class>de.diedavids.cuba.defaultvalues.entity.example.sales.Order</class>
+        <class>de.diedavids.cuba.defaultvalues.entity.example.sales.Product</class>
+        <class>de.diedavids.cuba.defaultvalues.entity.example.sales.ProductCategory</class>
+        <class>de.diedavids.cuba.defaultvalues.entity.example.mlb.MlbPlayer</class>
+        <class>de.diedavids.cuba.defaultvalues.entity.example.mlb.MlbTeam</class>
+        <class>de.diedavids.cuba.defaultvalues.entity.example.mlb.BaseballStrength</class>
+    </persistence-unit>
+</persistence>

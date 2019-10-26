@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:repositories="http://www.cuba-platform.org/schema/data/jpa"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+   http://www.springframework.org/schema/beans
+   http://www.springframework.org/schema/beans/spring-beans.xsd
+   http://www.springframework.org/schema/context
+   http://www.springframework.org/schema/context/spring-context-4.3.xsd
+   http://www.cuba-platform.org/schema/data/jpa
+   http://www.cuba-platform.org/schema/data/jpa/cuba-repositories.xsd">
+
+    <!-- Annotation-based beans -->
+    <context:component-scan base-package="de.diedavids.cuba.defaultvalues"/>
+
+    <bean id="cuba_Metadata" class="de.diedavids.cuba.defaultvalues.MetadataWithDefaultValuesSupport" />
+
+    <repositories:repositories base-package="de.diedavids.cuba.defaultvalues.core.repositories"/>
+</beans>
