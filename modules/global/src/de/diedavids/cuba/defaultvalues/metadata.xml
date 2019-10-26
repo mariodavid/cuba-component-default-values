@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <metadata xmlns="http://schemas.haulmont.com/cuba/metadata.xsd">
 
+    <datatypes>
+        <datatype id="MetaClass"
+                  class="de.diedavids.cuba.defaultvalues.metadata.MetaClassDatatype"
+                  javaType="com.haulmont.chile.core.model.MetaClass"
+                  sqlType="varchar(255)"
+        />
+    </datatypes>
+
     <metadata-model root-package="de.diedavids.cuba.defaultvalues" namespace="ddcdv"/>
 
 </metadata>

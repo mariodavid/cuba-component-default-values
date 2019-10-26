@@ -3,5 +3,6 @@
     <persistence-unit name="cuba-component-default-values" transaction-type="RESOURCE_LOCAL">
 
         <class>de.diedavids.cuba.defaultvalues.entity.DefaultValueConfiguration</class>
+        <class>de.diedavids.cuba.defaultvalues.metadata.MetaClassConverter</class>
     </persistence-unit>
 </persistence>

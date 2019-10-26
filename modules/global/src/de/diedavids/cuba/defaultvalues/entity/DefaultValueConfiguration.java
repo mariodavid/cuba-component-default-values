@@ -1,8 +1,12 @@
 package de.diedavids.cuba.defaultvalues.entity;
 
+import com.haulmont.chile.core.annotations.MetaProperty;
+import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.cuba.core.entity.StandardEntity;
+import de.diedavids.cuba.defaultvalues.metadata.MetaClassConverter;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -14,7 +18,9 @@ public class DefaultValueConfiguration extends StandardEntity {
 
     @NotNull
     @Column(name = "ENTITY", nullable = false)
-    protected String entity;
+    @Convert(converter = MetaClassConverter.class)
+    @MetaProperty(datatype = "MetaClass", mandatory = true)
+    protected MetaClass entity;
 
     @NotNull
     @Column(name = "ENTITY_ATTRIBUTE", nullable = false)
@@ -39,11 +45,11 @@ public class DefaultValueConfiguration extends StandardEntity {
         this.entityAttribute = entityAttribute;
     }
 
-    public String getEntity() {
+    public MetaClass getEntity() {
         return entity;
     }
 
-    public void setEntity(String entity) {
+    public void setEntity(MetaClass entity) {
         this.entity = entity;
     }
 }

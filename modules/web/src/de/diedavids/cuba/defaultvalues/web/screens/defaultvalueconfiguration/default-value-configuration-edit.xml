@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://editorCaption"
+        focusComponent="form"
+        messagesPack="de.diedavids.cuba.defaultvalues.web.screens.defaultvalueconfiguration">
+    <data>
+        <instance id="defaultValueConfigurationDc"
+                  class="de.diedavids.cuba.defaultvalues.entity.DefaultValueConfiguration"
+                  view="_local">
+            <loader/>
+        </instance>
+    </data>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="editActions" spacing="true">
+        <form id="form" dataContainer="defaultValueConfigurationDc">
+            <column width="250px">
+                <lookupField id="entityField" property="entity"/>
+                <lookupField id="entityAttributeField" property="entityAttribute"/>
+                <textField id="valueField" property="value"/>
+            </column>
+        </form>
+        <hbox id="editActions" spacing="true">
+            <button action="windowCommitAndClose"/>
+            <button action="windowClose"/>
+        </hbox>
+    </layout>
+</window>

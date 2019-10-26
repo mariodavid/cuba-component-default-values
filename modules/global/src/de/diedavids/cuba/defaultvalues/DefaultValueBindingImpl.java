@@ -46,13 +46,8 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
 
         return dataManager.load(DefaultValueConfiguration.class)
                 .query("select e from ddcdv_DefaultValueConfiguration e where e.entity = :entity")
-        .parameter("entity", metaClass.getName())
+        .parameter("entity", metaClass)
         .list();
-        /*return defaultValuesConfigurationService.findByEntity(
-                metaClass.getName()
-        );
-
-         */
     }
 
     private <T extends Entity> void bindDefaultValue(T entityInstance, MetaClass metaClass, DefaultValueConfiguration defaultValueConfiguration) {
