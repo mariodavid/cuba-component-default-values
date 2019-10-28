@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://editorCaption"
+        focusComponent="form"
+        messagesPack="de.diedavids.cuba.defaultvalues.web.screens.metaclassentity">
+    <data>
+        <instance id="metaClassEntityDc"
+                  class="de.diedavids.cuba.defaultvalues.entity.MetaClassEntity"
+                  view="_local">
+            <loader/>
+
+        </instance>
+
+        <collection id="defaultValueConfigurationsDc"
+                    class="de.diedavids.cuba.defaultvalues.entity.DefaultValueConfiguration"
+                    view="_local">
+            <loader id="defaultValueConfigurationsDl">
+                <query>
+                    <![CDATA[select e from ddcdv_DefaultValueConfiguration e where e.entity = :entity]]>
+                </query>
+            </loader>
+        </collection>
+    </data>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="editActions" spacing="true">
+
+        <form id="form" dataContainer="metaClassEntityDc" editable="false">
+            <column width="250px">
+                <textField id="nameField" property="name"/>
+                <textField id="descriptionField" property="description"/>
+            </column>
+        </form>
+        <table
+                id="defaultValuesTable"
+                dataContainer="defaultValueConfigurationsDc"
+                height="300px"
+                width="100%"
+        >
+            <actions>
+                <action id="setDefaultValue"
+                        trackSelection="true"
+                        caption="msg://setDefaultValue"
+                        type="edit"
+                />
+            </actions>
+            <columns>
+                <column id="entityAttribute" />
+                <column id="value" />
+            </columns>
+            <buttonsPanel>
+                <button id="editBtn" action="defaultValuesTable.setDefaultValue" />
+            </buttonsPanel>
+            <rows/>
+        </table>
+        <hbox id="editActions" spacing="true">
+            <button action="windowCommitAndClose"/>
+            <button action="windowClose"/>
+        </hbox>
+    </layout>
+</window>

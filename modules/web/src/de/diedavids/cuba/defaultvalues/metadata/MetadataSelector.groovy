@@ -45,6 +45,13 @@ class MetadataSelector implements MetadataDataProvider {
         options
     }
 
+    @Override
+    List<MetaProperty> getBusinessMetaProperties(MetaClass entityMetaClass) {
+
+        return entityMetaClass.properties.findAll { MetaProperty property ->
+            metadataTools.isPersistent(property) && !metadataTools.isSystem(property)
+        } as List<MetaProperty>
+    }
 
     @Override
     Map<String, String> getAllAttributesLookupFieldOptions(MetaClass entityMetaClass) {

@@ -9,6 +9,7 @@ import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Metadata;
 import de.diedavids.cuba.defaultvalues.entity.DefaultValueConfiguration;
 import de.diedavids.cuba.defaultvalues.service.DefaultValuesConfigurationService;
+import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;

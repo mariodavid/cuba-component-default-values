@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
+        caption="msg://caption"
+        messagesPack="de.diedavids.cuba.defaultvalues.web.screens">
+    <data readOnly="true">
+        <collection id="metaClassEntitiesDc"
+                    class="de.diedavids.cuba.defaultvalues.entity.MetaClassEntity"
+                    view="_local">
+            <loader  id="metaClassEntityDl"/>
+        </collection>
+    </data>
+    <dialogMode height="600"
+                width="800"/>
+    <layout expand="metaClassEntitiesTable"
+            spacing="true">
+        <table id="metaClassEntitiesTable"
+                    width="100%"
+                    dataContainer="metaClassEntitiesDc">
+            <actions>
+                <action id="edit" type="edit"/>
+            </actions>
+            <columns>
+                <column id="description"/>
+                <column id="name"/>
+            </columns>
+            <rowsCount/>
+            <buttonsPanel id="buttonsPanel"
+                          alwaysVisible="true">
+                <button id="editBtn" action="metaClassEntitiesTable.edit"/>
+            </buttonsPanel>
+        </table>
+    </layout>
+</window>

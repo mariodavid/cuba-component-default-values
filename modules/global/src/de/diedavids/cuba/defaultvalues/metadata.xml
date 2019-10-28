@@ -9,6 +9,9 @@
         />
     </datatypes>
 
-    <metadata-model root-package="de.diedavids.cuba.defaultvalues" namespace="ddcdv"/>
+    <metadata-model root-package="de.diedavids.cuba.defaultvalues" namespace="ddcdv">
+        <class>de.diedavids.cuba.defaultvalues.entity.MetaClassEntity</class>
+        <class>de.diedavids.cuba.defaultvalues.entity.MetaPropertyDefaultValueEntity</class>
+    </metadata-model>
 
 </metadata>
