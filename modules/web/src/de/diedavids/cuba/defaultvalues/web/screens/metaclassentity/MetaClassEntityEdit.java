@@ -160,7 +160,8 @@ public class MetaClassEntityEdit extends StandardEditor<MetaClassEntity> {
         MetaProperty property = getEntityMetaClass().getProperty(defaultValueConfiguration.getEntityAttribute().getName());
         Object defaultValue = entity.getValue(defaultValueConfiguration.getEntityAttribute().getName());
         Datatype datatype = determineEntityAttributeDatatype(property);
-        defaultValueConfiguration.setValue(datatype.format(defaultValue));
+        String formattedValue = datatype.format(defaultValue);
+        defaultValueConfiguration.setValue(formattedValue);
     }
 
 

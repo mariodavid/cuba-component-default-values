@@ -3,7 +3,6 @@ package de.diedavids.cuba.defaultvalues.entity;
 import com.haulmont.chile.core.annotations.MetaProperty;
 import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.cuba.core.entity.StandardEntity;
-import de.diedavids.cuba.defaultvalues.metadata.MetaClassConverter;
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
