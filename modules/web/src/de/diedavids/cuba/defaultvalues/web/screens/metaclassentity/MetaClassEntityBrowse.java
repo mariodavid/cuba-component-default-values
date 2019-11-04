@@ -9,7 +9,8 @@ import com.haulmont.cuba.gui.screen.*;
 import de.diedavids.cuba.defaultvalues.entity.MetaClassEntity;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @LoadDataBeforeShow
@@ -19,7 +20,6 @@ public class MetaClassEntityBrowse extends Screen {
 
     @Inject
     protected MetadataTools metadataTools;
-
     @Inject
     protected MessageTools messageTools;
     @Inject
@@ -27,19 +27,20 @@ public class MetaClassEntityBrowse extends Screen {
 
     @Install(to = "metaClassEntityDl", target = Target.DATA_LOADER)
     protected List<MetaClassEntity> loadEntities(LoadContext<MetaClassEntity> loadContext) {
-        Collection<MetaClass> allPersistentMetaClasses = metadataTools.getAllPersistentMetaClasses();
 
-        return allPersistentMetaClasses
+        return metadataTools.getAllPersistentMetaClasses()
                 .stream()
-                .map(metaClass -> {
-                    MetaClassEntity metaClassEntity = metadata.create(MetaClassEntity.class);
-                    metaClassEntity.setName(metaClass.getName());
-                    metaClassEntity.setDescription(messageTools.getEntityCaption(metaClass));
-                    return metaClassEntity;
-                })
+                .map(this::createMetaClassEntity)
                 .sorted(Comparator.comparing(MetaClassEntity::getDescription))
                 .collect(Collectors.toList());
 
+    }
+
+    private MetaClassEntity createMetaClassEntity(MetaClass metaClass) {
+        MetaClassEntity metaClassEntity = metadata.create(MetaClassEntity.class);
+        metaClassEntity.setName(metaClass.getName());
+        metaClassEntity.setDescription(messageTools.getEntityCaption(metaClass));
+        return metaClassEntity;
     }
 
 }

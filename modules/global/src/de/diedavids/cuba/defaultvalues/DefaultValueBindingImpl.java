@@ -52,14 +52,13 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
     }
 
     private <T extends Entity> void bindDefaultValue(T entityInstance, MetaClass metaClass, DefaultValueConfiguration defaultValueConfiguration) {
-        String entityAttribute = defaultValueConfiguration.getEntityAttribute();
-        MetaProperty property = metaClass.getProperty(entityAttribute);
+        MetaProperty property = defaultValueConfiguration.getEntityAttribute();
 
         if (property.getRange().isDatatype()) {
             bindDatatypeDefaultValue(
                     entityInstance,
                     defaultValueConfiguration,
-                    entityAttribute,
+                    property,
                     property.getRange().asDatatype()
             );
         }
@@ -67,7 +66,7 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
             bindDatatypeDefaultValue(
                     entityInstance,
                     defaultValueConfiguration,
-                    entityAttribute,
+                    property,
                     property.getRange().asEnumeration()
             );
         }
@@ -75,7 +74,7 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
             bindEntityDefaultValue(
                     entityInstance,
                     defaultValueConfiguration,
-                    entityAttribute
+                    property
             );
         }
 
@@ -84,13 +83,13 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
     private <T extends Entity> void bindDatatypeDefaultValue(
             T entityInstance,
             DefaultValueConfiguration defaultValueConfiguration,
-            String entityAttribute,
+            MetaProperty entityAttribute,
             Datatype<Object> datatype
     ) {
 
         try {
             Object result = datatype.parse(defaultValueConfiguration.getValue());
-            entityInstance.setValue(entityAttribute, result);
+            entityInstance.setValue(entityAttribute.getName(), result);
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -98,13 +97,13 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
     private <T extends Entity> void bindEntityDefaultValue(
             T entityInstance,
             DefaultValueConfiguration defaultValueConfiguration,
-            String entityAttribute
+            MetaProperty entityAttribute
     ) {
 
         try {
             Datatype datatype = new EntitySoftReferenceDatatype();
             Object result = datatype.parse(defaultValueConfiguration.getValue());
-            entityInstance.setValue(entityAttribute, result);
+            entityInstance.setValue(entityAttribute.getName(), result);
         } catch (ParseException e) {
             e.printStackTrace();
         }

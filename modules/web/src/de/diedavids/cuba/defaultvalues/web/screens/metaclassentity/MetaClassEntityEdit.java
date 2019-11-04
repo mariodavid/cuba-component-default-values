@@ -1,14 +1,12 @@
 package de.diedavids.cuba.defaultvalues.web.screens.metaclassentity;
 
 import com.haulmont.chile.core.datatypes.Datatype;
-import com.haulmont.chile.core.datatypes.impl.StringDatatype;
 import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.chile.core.model.MetaProperty;
-import com.haulmont.chile.core.model.Range;
+import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.MessageTools;
 import com.haulmont.cuba.core.global.Metadata;
-import com.haulmont.cuba.gui.Dialogs;
-import com.haulmont.cuba.gui.app.core.inputdialog.InputParameter;
+import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog;
 import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.Table;
 import com.haulmont.cuba.gui.model.CollectionContainer;
@@ -17,24 +15,25 @@ import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.screen.*;
 import de.diedavids.cuba.defaultvalues.entity.DefaultValueConfiguration;
 import de.diedavids.cuba.defaultvalues.entity.MetaClassEntity;
-import de.diedavids.cuba.defaultvalues.metadata.MetadataDataProvider;
 import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
+import de.diedavids.cuba.metadataextensions.MetadataDialogs;
+import de.diedavids.cuba.metadataextensions.web.MetadataDataProvider;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
-import java.text.ParseException;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
+import static de.diedavids.cuba.metadataextensions.MetaPropertyInputParameter.metaPropertyParameter;
 
 @UiController("ddcdv_MetaClassEntity.edit")
 @UiDescriptor("meta-class-entity-edit.xml")
 @EditedEntityContainer("metaClassEntityDc")
 public class MetaClassEntityEdit extends StandardEditor<MetaClassEntity> {
 
-
-    @Inject
-    protected Dialogs dialogs;
     @Inject
     protected MessageBundle messageBundle;
     @Inject
@@ -43,6 +42,10 @@ public class MetaClassEntityEdit extends StandardEditor<MetaClassEntity> {
     protected Metadata metadata;
     @Inject
     protected MetadataDataProvider metadataDataProvider;
+    @Inject
+    protected MetadataDialogs metadataDialogs;
+    @Inject
+    protected DataContext dataContext;
 
     @Inject
     protected CollectionLoader<DefaultValueConfiguration> defaultValueConfigurationsDl;
@@ -50,8 +53,6 @@ public class MetaClassEntityEdit extends StandardEditor<MetaClassEntity> {
     protected CollectionContainer<DefaultValueConfiguration> defaultValueConfigurationsDc;
     @Inject
     protected Table<DefaultValueConfiguration> defaultValuesTable;
-    @Inject
-    protected DataContext dataContext;
 
 
     @Subscribe
@@ -59,58 +60,72 @@ public class MetaClassEntityEdit extends StandardEditor<MetaClassEntity> {
         defaultValueConfigurationsDl.setParameter("entity", getEntityMetaClass());
         getScreenData().loadAll();
 
+        createTemporaryDefaultValueConfigurationForAllMetaProperties();
 
+    }
+
+    private void createTemporaryDefaultValueConfigurationForAllMetaProperties() {
         List<DefaultValueConfiguration> existingDefaultValues = defaultValueConfigurationsDc.getItems();
 
-        MetaClass metaClass = getEntityMetaClass();
+        List<DefaultValueConfiguration> defaultValueConfigurationForMissingMetaProperties =
+                createDefaultValueConfigurationForMissingMetaProperties(existingDefaultValues);
 
-        metadataDataProvider.getBusinessMetaProperties(metaClass).stream()
+        defaultValueConfigurationsDc.getMutableItems().addAll(
+                defaultValueConfigurationForMissingMetaProperties
+        );
+
+
+        defaultValueConfigurationsDc.getMutableItems().sort(
+                Comparator.comparing(defaultValueConfiguration -> defaultValueConfiguration.getEntityAttribute().getName())
+        );
+
+
+    }
+
+    private List<DefaultValueConfiguration> createDefaultValueConfigurationForMissingMetaProperties(List<DefaultValueConfiguration> existingDefaultValues) {
+        return metadataDataProvider.getBusinessMetaProperties(getEntityMetaClass()).stream()
                 .filter(metaProperty ->
-                    !isPartOfExistingMetaProperties(existingDefaultValues, metaProperty)
+                    !isPartOfExistingDefaultValues(existingDefaultValues, metaProperty)
                 )
                 .map(this::createDefaultValueConfiguration)
-                .forEach(defaultValueConfiguration ->
-                        defaultValueConfigurationsDc.getMutableItems().add(defaultValueConfiguration)
-                );
-
+                .collect(Collectors.toList());
     }
 
     @Subscribe(target = Target.DATA_CONTEXT)
     protected void onPreCommit(DataContext.PreCommitEvent event) {
+        addNonEmptyValues();
+        removeEmptyValues();
+    }
+
+    private void addNonEmptyValues() {
         defaultValueConfigurationsDc.getItems().stream()
                 .filter(defaultValueConfiguration -> defaultValueConfiguration.getValue() != null)
                 .forEach(defaultValueConfiguration -> dataContext.merge(defaultValueConfiguration));
     }
-    
-    
-    
+
+    private void removeEmptyValues() {
+        defaultValueConfigurationsDc.getItems().stream()
+                .filter(defaultValueConfiguration -> StringUtils.isEmpty(defaultValueConfiguration.getValue()))
+                .forEach(defaultValueConfiguration -> dataContext.remove(defaultValueConfiguration));
+    }
 
 
-    private boolean isPartOfExistingMetaProperties(List<DefaultValueConfiguration> existingDefaultValues, MetaProperty metaProperty) {
+    private boolean isPartOfExistingDefaultValues(List<DefaultValueConfiguration> existingDefaultValues, MetaProperty metaProperty) {
         return existingDefaultValues.stream()
-                .anyMatch(defaultValueConfiguration -> defaultValueConfiguration.getEntityAttribute().equals(metaProperty.getName()));
+                .anyMatch(defaultValueConfiguration -> defaultValueConfiguration.getEntityAttribute().equals(metaProperty));
     }
 
     private DefaultValueConfiguration createDefaultValueConfiguration(MetaProperty metaProperty) {
         DefaultValueConfiguration defaultValueConfiguration = metadata.create(DefaultValueConfiguration.class);
         defaultValueConfiguration.setEntity(getEntityMetaClass());
-        defaultValueConfiguration.setEntityAttribute(metaProperty.getName());
+        defaultValueConfiguration.setEntityAttribute(metaProperty);
 
         return defaultValueConfiguration;
     }
 
-
-
-
     @Install(to = "defaultValuesTable.entityAttribute", subject = "formatter")
-    protected String defaultValuesTableMetaPropertyFormatter(String metaProperty) {
-        return messageTools.getPropertyCaption(getEntityMetaClass().getProperty(metaProperty));
-    }
-
-
-
-    private MetaClass getEntityMetaClass() {
-        return metadata.getClass(getEditedEntity().getName());
+    protected String defaultValuesTableMetaPropertyFormatter(MetaProperty metaProperty) {
+        return messageTools.getPropertyCaption(metaProperty);
     }
 
     @Subscribe("defaultValuesTable.setDefaultValue")
@@ -118,95 +133,57 @@ public class MetaClassEntityEdit extends StandardEditor<MetaClassEntity> {
 
         DefaultValueConfiguration defaultValueConfiguration = defaultValuesTable.getSingleSelected();
 
-        MetaProperty property = getEntityMetaClass().getProperty(defaultValueConfiguration.getEntityAttribute());
-        Range propertyRange = property.getRange();
-        InputParameter result = null;
+        Class<Entity> entityClass = defaultValueConfiguration.getEntity().getJavaClass();
 
-        if (propertyRange.isDatatype()) {
-            Datatype<Object> datatype = propertyRange.asDatatype();
-            result = inputParameter(property)
-                    .withDatatype(datatype);
+        Entity entity = metadata.create(entityClass);
 
-            setDefaultValueIfRequired(
-                    result,
-                    datatype,
-                    defaultValueConfiguration.getValue()
-            );
-
-            requestDefaultValue(result, datatype, defaultValueConfiguration);
-        }
-        else if (propertyRange.isEnum()) {
-            Datatype<Object> datatype = propertyRange.asEnumeration();
-            result = inputParameter(property)
-                    .withEnumClass(datatype.getJavaClass());
-
-            setDefaultValueIfRequired(
-                    result,
-                    datatype,
-                    defaultValueConfiguration.getValue()
-            );
-
-            requestDefaultValue(result, datatype, defaultValueConfiguration);
-        }
-        else if (propertyRange.isClass()) {
-            EntitySoftReferenceDatatype datatype = new EntitySoftReferenceDatatype();
-
-            result = inputParameter(property)
-                    .withEntityClass(propertyRange.asClass().getJavaClass());
-
-            setDefaultValueIfRequired(
-                    result,
-                    datatype,
-                    defaultValueConfiguration.getValue()
-            );
-
-            requestDefaultValue(result, datatype, defaultValueConfiguration);
-        }
-        else {
-            StringDatatype datatype = new StringDatatype();
-            result = inputParameter(property)
-                    .withDatatype(datatype);
-
-            setDefaultValueIfRequired(
-                    result,
-                    datatype,
-                    defaultValueConfiguration.getValue()
-            );
-
-            requestDefaultValue(result, datatype, defaultValueConfiguration);
-        }
-    }
-
-    private void setDefaultValueIfRequired(InputParameter result, Datatype datatype, String value) {
-        if (!StringUtils.isEmpty(value)) {
-            try {
-                result.withDefaultValue(datatype.parse(value));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private InputParameter inputParameter(MetaProperty property) {
-        return InputParameter.parameter("value")
-                .withCaption(messageTools.getPropertyCaption(property));
-    }
-
-    private void requestDefaultValue(
-            InputParameter inputParameter,
-            Datatype datatype,
-            DefaultValueConfiguration defaultValueConfiguration
-    ) {
-        dialogs.createInputDialog(this)
-                .withParameter(inputParameter)
+        metadataDialogs.createMetadataInputDialog(this, entityClass)
+                .withEntity(entity)
                 .withCaption(messageBundle.getMessage("setValueCaption"))
-                .withCloseListener(closeEvent -> {
-                    if (closeEvent.getCloseAction().equals(INPUT_DIALOG_OK_ACTION)) {
-                        Object providedDefaultValue = closeEvent.getValue("value");
-                        defaultValueConfiguration.setValue(datatype.format(providedDefaultValue));
+                .withParameter(
+                        metaPropertyParameter(entityClass, defaultValueConfiguration.getEntityAttribute().getName())
+                            .withAutoBinding(true)
+                )
+                .withCloseListener(new Consumer<InputDialog.InputDialogCloseEvent>() {
+                    @Override
+                    public void accept(InputDialog.InputDialogCloseEvent closeEvent) {
+                        if (closeEvent.getCloseAction().equals(INPUT_DIALOG_OK_ACTION)) {
+                            setDefaultValue(entity, defaultValueConfiguration);
+                        }
                     }
                 })
                 .show();
+
     }
 
+    private void setDefaultValue(Entity entity, DefaultValueConfiguration defaultValueConfiguration) {
+        MetaProperty property = getEntityMetaClass().getProperty(defaultValueConfiguration.getEntityAttribute().getName());
+        Object defaultValue = entity.getValue(defaultValueConfiguration.getEntityAttribute().getName());
+        Datatype datatype = determineEntityAttributeDatatype(property);
+        defaultValueConfiguration.setValue(datatype.format(defaultValue));
+    }
+
+
+    private MetaClass getEntityMetaClass() {
+        return metadata.getClass(getEditedEntity().getName());
+    }
+
+    private Datatype determineEntityAttributeDatatype(MetaProperty metaProperty) {
+        if (metaProperty.getRange().isDatatype()) {
+            return metaProperty.getRange().asDatatype();
+        } else if (metaProperty.getRange().isEnum()) {
+            return metaProperty.getRange().asEnumeration();
+        } else if (metaProperty.getRange().isClass()) {
+            return new EntitySoftReferenceDatatype();
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Subscribe("defaultValuesTable.removeDefaultValue")
+    protected void onDefaultValuesTableRemoveDefaultValue(Action.ActionPerformedEvent event) {
+        defaultValuesTable.getSingleSelected()
+                .setValue(null);
+    }
 }

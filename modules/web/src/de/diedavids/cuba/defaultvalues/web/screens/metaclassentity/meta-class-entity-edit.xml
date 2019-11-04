@@ -23,18 +23,17 @@
     </data>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="editActions" spacing="true">
+    <layout expand="defaultValuesTable" spacing="true">
 
         <form id="form" dataContainer="metaClassEntityDc" editable="false">
             <column width="250px">
-                <textField id="nameField" property="name"/>
                 <textField id="descriptionField" property="description"/>
+                <textField id="nameField" property="name"/>
             </column>
         </form>
         <table
                 id="defaultValuesTable"
                 dataContainer="defaultValueConfigurationsDc"
-                height="300px"
                 width="100%"
         >
             <actions>
@@ -43,6 +42,11 @@
                         caption="msg://setDefaultValue"
                         type="edit"
                 />
+                <action id="removeDefaultValue"
+                        trackSelection="true"
+                        caption="msg://removeDefaultValue"
+                        icon="REMOVE_ACTION"
+                />
             </actions>
             <columns>
                 <column id="entityAttribute" />
@@ -50,6 +54,7 @@
             </columns>
             <buttonsPanel>
                 <button id="editBtn" action="defaultValuesTable.setDefaultValue" />
+                <button id="removeBtn" action="defaultValuesTable.removeDefaultValue" />
             </buttonsPanel>
             <rows/>
         </table>

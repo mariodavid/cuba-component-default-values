@@ -3,6 +3,7 @@ buildscript {
     ext.cubaVersion = '7.1.1'
     repositories {
 
+        mavenLocal()
 
         maven {
             url  "https://dl.bintray.com/cuba-platform/labs"
@@ -27,6 +28,7 @@ def modulePrefix = 'app'
 def globalModule = project(":${modulePrefix}-global")
 def coreModule = project(":${modulePrefix}-core")
 def webModule = project(":${modulePrefix}-web")
+def guiModule = project(":${modulePrefix}-gui")
 
 def servletApi = 'javax.servlet:javax.servlet-api:3.1.0'
 
@@ -48,11 +50,12 @@ dependencies {
     appComponent('de.balvi.cuba.declarativecontrollers:declarativecontrollers-global:0.9.0')
     appComponent('com.haulmont.addons.cuba.jpa.repositories:cuba-jpa-repositories-global:0.1.2')
     appComponent('de.diedavids.cuba.entitysoftreference:entity-soft-reference-global:0.6.5')
+    appComponent('de.diedavids.cuba.metadataextensions:metadataextensions-global:0.1.0-SNAPSHOT')
 }
 
 def hsql = 'org.hsqldb:hsqldb:2.4.1'
 
-configure([globalModule, coreModule, webModule]) {
+configure([globalModule, coreModule, webModule, guiModule]) {
     apply(plugin: 'java')
     apply(plugin: 'maven')
     apply(plugin: 'cuba')
@@ -78,7 +81,7 @@ configure([globalModule, coreModule, webModule]) {
     }
 }
 
-configure([globalModule, coreModule, webModule]) {
+configure([globalModule, coreModule, webModule, guiModule]) {
     apply(plugin: 'groovy')
 
     sourceSets {
@@ -199,6 +202,18 @@ configure(coreModule) {
     }
 }
 
+configure(guiModule) {
+    dependencies {
+        compile(globalModule)
+    }
+
+    task deployConf(type: Copy) {
+        from file('src')
+        include "de/diedavids/cuba/defaultvalues/**"
+        into "$cuba.tomcat.dir/conf/${modulePrefix}"
+    }
+}
+
 configure(webModule) {
     configurations {
         webcontent
@@ -206,7 +221,7 @@ configure(webModule) {
 
     dependencies {
         compileOnly(servletApi)
-        compile(globalModule)
+        compile(guiModule)
     }
 
     task webArchive(type: Zip) {
@@ -243,7 +258,7 @@ configure(webModule) {
 
     task deploy(dependsOn: [assemble, cleanConf], type: CubaDeployment) {
         appName = "${modulePrefix}"
-        appJars(modulePrefix + '-global', modulePrefix + '-web')
+        appJars(modulePrefix + '-global', modulePrefix + '-gui', modulePrefix + '-web')
     }
 }
 

@@ -19,5 +19,4 @@
 
     <bean id="cuba_Metadata" class="de.diedavids.cuba.defaultvalues.MetadataWithDefaultValuesSupport" />
 
-
 </beans>

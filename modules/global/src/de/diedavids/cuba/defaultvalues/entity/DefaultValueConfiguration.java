@@ -13,18 +13,8 @@ import javax.validation.constraints.NotNull;
 
 @Table(name = "DDCDV_DEFAULT_VALUE_CONFIGURATION")
 @Entity(name = "ddcdv_DefaultValueConfiguration")
-public class DefaultValueConfiguration extends StandardEntity {
+public class DefaultValueConfiguration extends EntityAttributeAwareStandardEntity {
     private static final long serialVersionUID = -2613764553714339761L;
-
-    @NotNull
-    @Column(name = "ENTITY", nullable = false)
-    @Convert(converter = MetaClassConverter.class)
-    @MetaProperty(datatype = "MetaClass", mandatory = true)
-    protected MetaClass entity;
-
-    @NotNull
-    @Column(name = "ENTITY_ATTRIBUTE", nullable = false)
-    protected String entityAttribute;
 
     @Column(name = "VALUE_")
     protected String value;
@@ -35,21 +25,5 @@ public class DefaultValueConfiguration extends StandardEntity {
 
     public void setValue(String value) {
         this.value = value;
-    }
-
-    public String getEntityAttribute() {
-        return entityAttribute;
-    }
-
-    public void setEntityAttribute(String entityAttribute) {
-        this.entityAttribute = entityAttribute;
-    }
-
-    public MetaClass getEntity() {
-        return entity;
-    }
-
-    public void setEntity(MetaClass entity) {
-        this.entity = entity;
     }
 }

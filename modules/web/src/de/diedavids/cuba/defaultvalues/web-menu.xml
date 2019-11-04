@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <menu-config xmlns="http://schemas.haulmont.com/cuba/menu.xsd">
-    <item screen="ddcdv_DefaultValueConfiguration.browse" insertBefore="jmxConsole"/>
     <item screen="ddcdv_EntityDefaultValuesBrowse" insertBefore="jmxConsole"/>
 </menu-config>
