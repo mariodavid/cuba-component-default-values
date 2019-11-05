@@ -1,15 +1,13 @@
 package de.diedavids.cuba.defaultvalues.entity;
 
-import com.haulmont.chile.core.annotations.MetaProperty;
-import com.haulmont.chile.core.model.MetaClass;
-import com.haulmont.cuba.core.entity.StandardEntity;
+import com.haulmont.chile.core.annotations.NamePattern;
+import de.diedavids.cuba.metadataextensions.entity.EntityAttributeAwareStandardEntity;
 
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
+@NamePattern("%s: %s|entityAttribute,value")
 @Table(name = "DDCDV_DEFAULT_VALUE_CONFIGURATION")
 @Entity(name = "ddcdv_DefaultValueConfiguration")
 public class DefaultValueConfiguration extends EntityAttributeAwareStandardEntity {
