@@ -8,9 +8,9 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 @NamePattern("%s: %s|entityAttribute,value")
-@Table(name = "DDCDV_DEFAULT_VALUE_CONFIGURATION")
-@Entity(name = "ddcdv_DefaultValueConfiguration")
-public class DefaultValueConfiguration extends EntityAttributeAwareStandardEntity {
+@Table(name = "DDCDV_ENTITY_ATTRIBUTE_DEFAULT_VALUE")
+@Entity(name = "ddcdv_EntityAttributeDefaultValue")
+public class EntityAttributeDefaultValue extends EntityAttributeAwareStandardEntity {
     private static final long serialVersionUID = -2613764553714339761L;
 
     @Column(name = "VALUE_")

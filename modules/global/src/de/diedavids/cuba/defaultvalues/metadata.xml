@@ -2,7 +2,6 @@
 <metadata xmlns="http://schemas.haulmont.com/cuba/metadata.xsd">
 
     <metadata-model root-package="de.diedavids.cuba.defaultvalues" namespace="ddcdv">
-        <class>de.diedavids.cuba.defaultvalues.entity.MetaClassEntity</class>
     </metadata-model>
 
 </metadata>

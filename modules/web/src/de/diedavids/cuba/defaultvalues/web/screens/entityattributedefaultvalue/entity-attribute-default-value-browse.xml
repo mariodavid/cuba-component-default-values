@@ -4,7 +4,7 @@
         messagesPack="de.diedavids.cuba.defaultvalues.web.screens">
     <data readOnly="true">
         <collection id="metaClassEntitiesDc"
-                    class="de.diedavids.cuba.defaultvalues.entity.MetaClassEntity"
+                    class="de.diedavids.cuba.metadataextensions.entity.MetaClassEntity"
                     view="_local">
             <loader  id="metaClassEntityDl"/>
         </collection>
@@ -17,7 +17,9 @@
                     width="100%"
                     dataContainer="metaClassEntitiesDc">
             <actions>
-                <action id="edit" type="edit"/>
+                <action id="edit"
+                        type="edit"
+                />
             </actions>
             <columns>
                 <column id="description"/>

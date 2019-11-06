@@ -1,7 +1,7 @@
 package de.diedavids.cuba.defaultvalues.service;
 
 import de.diedavids.cuba.defaultvalues.core.repositories.DefaultValueConfigurationRepository;
-import de.diedavids.cuba.defaultvalues.entity.DefaultValueConfiguration;
+import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -15,12 +15,12 @@ public class DefaultValuesConfigurationServiceBean implements DefaultValuesConfi
     DefaultValueConfigurationRepository repository;
 
     @Override
-    public List<DefaultValueConfiguration> findByEntityAndEntityAttribute(String entity, String entityAttribute) {
+    public List<EntityAttributeDefaultValue> findByEntityAndEntityAttribute(String entity, String entityAttribute) {
         return repository.findByEntityAndEntityAttribute(entity, entityAttribute);
     }
 
     @Override
-    public List<DefaultValueConfiguration> findByEntity(String entity) {
+    public List<EntityAttributeDefaultValue> findByEntity(String entity) {
         return repository.findByEntity(entity);
     }
 }

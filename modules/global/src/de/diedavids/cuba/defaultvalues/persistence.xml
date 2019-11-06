@@ -2,6 +2,6 @@
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
     <persistence-unit name="cuba-component-default-values" transaction-type="RESOURCE_LOCAL">
 
-        <class>de.diedavids.cuba.defaultvalues.entity.DefaultValueConfiguration</class>
+        <class>de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue</class>
     </persistence-unit>
 </persistence>

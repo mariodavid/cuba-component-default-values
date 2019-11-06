@@ -2,28 +2,28 @@
 <window xmlns="http://schemas.haulmont.com/cuba/screen/window.xsd"
         caption="msg://editorCaption"
         focusComponent="form"
-        messagesPack="de.diedavids.cuba.defaultvalues.web.screens.metaclassentity">
+        messagesPack="de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue">
     <data>
         <instance id="metaClassEntityDc"
-                  class="de.diedavids.cuba.defaultvalues.entity.MetaClassEntity"
+                  class="de.diedavids.cuba.metadataextensions.entity.MetaClassEntity"
                   view="_local">
             <loader/>
 
         </instance>
 
-        <collection id="defaultValueConfigurationsDc"
-                    class="de.diedavids.cuba.defaultvalues.entity.DefaultValueConfiguration"
+        <collection id="entityAttributeDefaultValuesDc"
+                    class="de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue"
                     view="_local">
-            <loader id="defaultValueConfigurationsDl">
+            <loader id="entityAttributeDefaultValueDl">
                 <query>
-                    <![CDATA[select e from ddcdv_DefaultValueConfiguration e where e.entity = :entity]]>
+                    <![CDATA[select e from ddcdv_EntityAttributeDefaultValue e where e.entity = :entity]]>
                 </query>
             </loader>
         </collection>
     </data>
     <dialogMode height="600"
                 width="800"/>
-    <layout expand="defaultValuesTable" spacing="true">
+    <layout expand="entityAttributeDefaultValuesTable" spacing="true">
 
         <form id="form" dataContainer="metaClassEntityDc" editable="false">
             <column width="250px">
@@ -32,8 +32,8 @@
             </column>
         </form>
         <table
-                id="defaultValuesTable"
-                dataContainer="defaultValueConfigurationsDc"
+                id="entityAttributeDefaultValuesTable"
+                dataContainer="entityAttributeDefaultValuesDc"
                 width="100%"
         >
             <actions>
@@ -53,8 +53,8 @@
                 <column id="value" />
             </columns>
             <buttonsPanel>
-                <button id="editBtn" action="defaultValuesTable.setDefaultValue" />
-                <button id="removeBtn" action="defaultValuesTable.removeDefaultValue" />
+                <button id="editBtn" action="entityAttributeDefaultValuesTable.setDefaultValue" />
+                <button id="removeBtn" action="entityAttributeDefaultValuesTable.removeDefaultValue" />
             </buttonsPanel>
             <rows/>
         </table>

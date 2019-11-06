@@ -1,5 +1,5 @@
--- begin DDCDV_DEFAULT_VALUE_CONFIGURATION
-create table DDCDV_DEFAULT_VALUE_CONFIGURATION (
+-- begin DDCDV_ENTITY_ATTRIBUTE_DEFAULT_VALUE
+create table DDCDV_ENTITY_ATTRIBUTE_DEFAULT_VALUE (
     ID varchar(36) not null,
     VERSION integer not null,
     CREATE_TS timestamp,
@@ -8,11 +8,11 @@ create table DDCDV_DEFAULT_VALUE_CONFIGURATION (
     UPDATED_BY varchar(50),
     DELETE_TS timestamp,
     DELETED_BY varchar(50),
+    ENTITY varchar(255),
+    ENTITY_ATTRIBUTE varchar(255),
     --
-    ENTITY varchar(255) not null,
-    ENTITY_ATTRIBUTE varchar(255) not null,
     VALUE_ varchar(255),
     --
     primary key (ID)
 )^
--- end DDCDV_DEFAULT_VALUE_CONFIGURATION
+-- end DDCDV_ENTITY_ATTRIBUTE_DEFAULT_VALUE

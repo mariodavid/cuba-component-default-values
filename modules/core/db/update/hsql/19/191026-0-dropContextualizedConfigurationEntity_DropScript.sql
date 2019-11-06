@@ -1,1 +1,0 @@
-drop table DDCDV_CONTEXTUALIZED_CONFIGURATION_ENTITY__U82748 if exists cascade ;

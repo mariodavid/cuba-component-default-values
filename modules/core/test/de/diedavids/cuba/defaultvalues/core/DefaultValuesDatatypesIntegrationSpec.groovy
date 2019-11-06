@@ -6,7 +6,7 @@ import com.haulmont.cuba.core.global.DataManager
 import com.haulmont.cuba.core.global.EntityLoadInfoBuilder
 import com.haulmont.cuba.core.global.Metadata
 import de.diedavids.cuba.defaultvalues.DdcdvTestContainer
-import de.diedavids.cuba.defaultvalues.entity.DefaultValueConfiguration
+import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue
 import de.diedavids.cuba.defaultvalues.entity.example.mlb.MlbPlayer
 import de.diedavids.cuba.defaultvalues.entity.example.mlb.MlbTeam
 import de.diedavids.cuba.defaultvalues.entity.example.mlb.State
@@ -24,7 +24,7 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
 
     private Metadata metadata;
     private DataManager dataManager;
-    private DefaultValueConfiguration configuration
+    private EntityAttributeDefaultValue configuration
     private EntityLoadInfoBuilder entityLoadInfoBuilder
 
     void setup()  {
@@ -174,8 +174,8 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
         sut.team == mlbTeam
     }
 
-    private DefaultValueConfiguration defaultValueConfiguration(String entity, String entityAttribute, String value) {
-        DefaultValueConfiguration configuration = metadata.create(DefaultValueConfiguration.class)
+    private EntityAttributeDefaultValue defaultValueConfiguration(String entity, String entityAttribute, String value) {
+        EntityAttributeDefaultValue configuration = metadata.create(EntityAttributeDefaultValue.class)
 
         configuration.setEntity(entity)
         configuration.setEntityAttribute(entityAttribute)

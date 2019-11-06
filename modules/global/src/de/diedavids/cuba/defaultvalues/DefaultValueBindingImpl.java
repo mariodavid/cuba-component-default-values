@@ -1,13 +1,12 @@
 package de.diedavids.cuba.defaultvalues;
 
 import com.haulmont.chile.core.datatypes.Datatype;
-import com.haulmont.chile.core.datatypes.Enumeration;
 import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.chile.core.model.MetaProperty;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Metadata;
-import de.diedavids.cuba.defaultvalues.entity.DefaultValueConfiguration;
+import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import de.diedavids.cuba.defaultvalues.service.DefaultValuesConfigurationService;
 import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
 import org.springframework.stereotype.Component;
@@ -34,30 +33,30 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
 
         MetaClass metaClass = metadata.getClass(entityClass);
 
-        List<DefaultValueConfiguration> defaultValueConfigurationList = getDefaultConfigurations(metaClass);
+        List<EntityAttributeDefaultValue> entityAttributeDefaultValueList = getDefaultConfigurations(metaClass);
 
-        defaultValueConfigurationList
+        entityAttributeDefaultValueList
                 .forEach(defaultValueConfiguration -> bindDefaultValue(entityInstance, metaClass, defaultValueConfiguration)
                 );
 
         return entityInstance;
     }
 
-    private List<DefaultValueConfiguration> getDefaultConfigurations(MetaClass metaClass) {
+    private List<EntityAttributeDefaultValue> getDefaultConfigurations(MetaClass metaClass) {
 
-        return dataManager.load(DefaultValueConfiguration.class)
-                .query("select e from ddcdv_DefaultValueConfiguration e where e.entity = :entity")
+        return dataManager.load(EntityAttributeDefaultValue.class)
+                .query("select e from ddcdv_EntityAttributeDefaultValue e where e.entity = :entity")
         .parameter("entity", metaClass)
         .list();
     }
 
-    private <T extends Entity> void bindDefaultValue(T entityInstance, MetaClass metaClass, DefaultValueConfiguration defaultValueConfiguration) {
-        MetaProperty property = defaultValueConfiguration.getEntityAttribute();
+    private <T extends Entity> void bindDefaultValue(T entityInstance, MetaClass metaClass, EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        MetaProperty property = entityAttributeDefaultValue.getEntityAttribute();
 
         if (property.getRange().isDatatype()) {
             bindDatatypeDefaultValue(
                     entityInstance,
-                    defaultValueConfiguration,
+                    entityAttributeDefaultValue,
                     property,
                     property.getRange().asDatatype()
             );
@@ -65,7 +64,7 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
         else if (property.getRange().isEnum()) {
             bindDatatypeDefaultValue(
                     entityInstance,
-                    defaultValueConfiguration,
+                    entityAttributeDefaultValue,
                     property,
                     property.getRange().asEnumeration()
             );
@@ -73,7 +72,7 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
         else if (property.getRange().isClass()) {
             bindEntityDefaultValue(
                     entityInstance,
-                    defaultValueConfiguration,
+                    entityAttributeDefaultValue,
                     property
             );
         }
@@ -82,13 +81,13 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
 
     private <T extends Entity> void bindDatatypeDefaultValue(
             T entityInstance,
-            DefaultValueConfiguration defaultValueConfiguration,
+            EntityAttributeDefaultValue entityAttributeDefaultValue,
             MetaProperty entityAttribute,
             Datatype<Object> datatype
     ) {
 
         try {
-            Object result = datatype.parse(defaultValueConfiguration.getValue());
+            Object result = datatype.parse(entityAttributeDefaultValue.getValue());
             entityInstance.setValue(entityAttribute.getName(), result);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -96,13 +95,13 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
     }
     private <T extends Entity> void bindEntityDefaultValue(
             T entityInstance,
-            DefaultValueConfiguration defaultValueConfiguration,
+            EntityAttributeDefaultValue entityAttributeDefaultValue,
             MetaProperty entityAttribute
     ) {
 
         try {
             Datatype datatype = new EntitySoftReferenceDatatype();
-            Object result = datatype.parse(defaultValueConfiguration.getValue());
+            Object result = datatype.parse(entityAttributeDefaultValue.getValue());
             entityInstance.setValue(entityAttribute.getName(), result);
         } catch (ParseException e) {
             e.printStackTrace();
