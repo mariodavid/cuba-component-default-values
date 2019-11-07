@@ -6,6 +6,9 @@ buildscript {
         mavenLocal()
 
         maven {
+            url  "https://dl.bintray.com/mariodavid/cuba-components"
+        }
+        maven {
             url  "https://dl.bintray.com/cuba-platform/labs"
         }
         
@@ -50,7 +53,7 @@ dependencies {
     appComponent('de.balvi.cuba.declarativecontrollers:declarativecontrollers-global:0.9.0')
     appComponent('com.haulmont.addons.cuba.jpa.repositories:cuba-jpa-repositories-global:0.1.2')
     appComponent('de.diedavids.cuba.entitysoftreference:entity-soft-reference-global:0.6.5')
-    appComponent('de.diedavids.cuba.metadataextensions:metadataextensions-global:0.1.0-SNAPSHOT')
+    appComponent('de.diedavids.cuba.metadataextensions:metadataextensions-global:0.2.0')
 }
 
 def hsql = 'org.hsqldb:hsqldb:2.4.1'

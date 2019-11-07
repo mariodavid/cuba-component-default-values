@@ -15,9 +15,9 @@ import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.screen.*;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
-import de.diedavids.cuba.metadataextensions.MetadataDialogs;
+import de.diedavids.cuba.metadataextensions.EntityDialogs;
+import de.diedavids.cuba.metadataextensions.dataprovider.EntityDataProvider;
 import de.diedavids.cuba.metadataextensions.entity.MetaClassEntity;
-import de.diedavids.cuba.metadataextensions.web.MetadataDataProvider;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
-import static de.diedavids.cuba.metadataextensions.MetaPropertyInputParameter.metaPropertyParameter;
+import static de.diedavids.cuba.metadataextensions.EntityAttributeInputParameter.entityAttributeParameter;
 
 @UiController("ddcdv_EntityAttributeDefaultValue.edit")
 @UiDescriptor("entity-attribute-default-value-edit.xml")
@@ -41,9 +41,9 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     @Inject
     protected Metadata metadata;
     @Inject
-    protected MetadataDataProvider metadataDataProvider;
+    protected EntityDataProvider entityDataProvider;
     @Inject
-    protected MetadataDialogs metadataDialogs;
+    protected EntityDialogs entityDialogs;
     @Inject
     protected DataContext dataContext;
 
@@ -82,7 +82,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
 
     private List<EntityAttributeDefaultValue> createDefaultValueConfigurationForMissingMetaProperties(List<EntityAttributeDefaultValue> existingDefaultValues) {
         MetaClass entityMetaClass = getEntityMetaClass();
-        return metadataDataProvider.getBusinessMetaProperties(entityMetaClass).stream()
+        return entityDataProvider.businessEntityAttributes(entityMetaClass).stream()
                 .filter(metaProperty -> !isToManyReference(metaProperty))
                 .filter(metaProperty ->
                     !isPartOfExistingDefaultValues(existingDefaultValues, metaProperty)
@@ -141,11 +141,11 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
 
         Entity entity = metadata.create(entityClass);
 
-        metadataDialogs.createMetadataInputDialog(this, entityClass)
+        entityDialogs.createEntityInputDialog(this, entityClass)
                 .withEntity(entity)
                 .withCaption(messageBundle.getMessage("setValueCaption"))
                 .withParameter(
-                        metaPropertyParameter(entityClass, entityAttributeDefaultValue.getEntityAttribute().getName())
+                        entityAttributeParameter(entityClass, entityAttributeDefaultValue.getEntityAttribute().getName())
                             .withAutoBinding(true)
                 )
                 .withCloseListener(new Consumer<InputDialog.InputDialogCloseEvent>() {
