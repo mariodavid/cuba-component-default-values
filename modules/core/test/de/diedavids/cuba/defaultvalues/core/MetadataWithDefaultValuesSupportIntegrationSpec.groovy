@@ -1,5 +1,6 @@
 package de.diedavids.cuba.defaultvalues.core
 
+
 import com.haulmont.cuba.core.global.AppBeans
 import com.haulmont.cuba.core.global.DataManager
 import com.haulmont.cuba.core.global.Metadata
@@ -8,7 +9,6 @@ import de.diedavids.cuba.defaultvalues.DdcdvTestContainer
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue
 import de.diedavids.cuba.defaultvalues.entity.example.mlb.MlbTeam
 import de.diedavids.cuba.defaultvalues.entity.example.mlb.State
-import de.diedavids.cuba.defaultvalues.service.DefaultValuesConfigurationService
 import org.junit.ClassRule
 import spock.lang.Shared
 import spock.lang.Specification
@@ -20,15 +20,13 @@ class MetadataWithDefaultValuesSupportIntegrationSpec extends Specification {
     @ClassRule
     public DdcdvTestContainer cont = DdcdvTestContainer.Common.INSTANCE
 
-    private Metadata metadata;
-    private DataManager dataManager;
-    private DefaultValuesConfigurationService defaultValuesConfigurationService
+    private Metadata metadata
+    private DataManager dataManager
     private EntityAttributeDefaultValue configuration
 
     void setup() {
-        dataManager = AppBeans.get(DataManager.class);
-        metadata = AppBeans.get(Metadata.class);
-        defaultValuesConfigurationService = AppBeans.get(DefaultValuesConfigurationService.class);
+        dataManager = AppBeans.get(DataManager.NAME)
+        metadata = cont.metadata()
     }
 
     void cleanup() {
@@ -65,7 +63,7 @@ class MetadataWithDefaultValuesSupportIntegrationSpec extends Specification {
             @PostConstruct
             protected void initState() {
                 if (getState() != null) {
-                    setState(State.CO);
+                    setState(State.CO)
                 }
             }
 
@@ -90,8 +88,9 @@ class MetadataWithDefaultValuesSupportIntegrationSpec extends Specification {
     private EntityAttributeDefaultValue defaultValueConfiguration(String entity, String entityAttribute, String value) {
         EntityAttributeDefaultValue configuration = metadata.create(EntityAttributeDefaultValue.class)
 
-        configuration.setEntity(entity)
-        configuration.setEntityAttribute(entityAttribute)
+        def targetMetaClass = metadata.getClass(entity)
+        configuration.setEntity(targetMetaClass)
+        configuration.setEntityAttribute(targetMetaClass.getProperty(entityAttribute))
         configuration.setValue(value)
 
         dataManager.commit(configuration)

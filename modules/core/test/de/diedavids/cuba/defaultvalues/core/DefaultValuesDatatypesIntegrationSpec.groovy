@@ -22,14 +22,14 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
     @Shared @ClassRule
     public DdcdvTestContainer cont = DdcdvTestContainer.Common.INSTANCE
 
-    private Metadata metadata;
-    private DataManager dataManager;
+    private Metadata metadata
+    private DataManager dataManager
     private EntityAttributeDefaultValue configuration
     private EntityLoadInfoBuilder entityLoadInfoBuilder
 
     void setup()  {
         dataManager = AppBeans.get(DataManager)
-        metadata = AppBeans.get(Metadata)
+        metadata = cont.metadata()
         entityLoadInfoBuilder = AppBeans.get(EntityLoadInfoBuilder)
     }
 
@@ -177,8 +177,9 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
     private EntityAttributeDefaultValue defaultValueConfiguration(String entity, String entityAttribute, String value) {
         EntityAttributeDefaultValue configuration = metadata.create(EntityAttributeDefaultValue.class)
 
-        configuration.setEntity(entity)
-        configuration.setEntityAttribute(entityAttribute)
+        def targetMetaClass = metadata.getClass(entity)
+        configuration.setEntity(targetMetaClass)
+        configuration.setEntityAttribute(targetMetaClass.getProperty(entityAttribute))
         configuration.setValue(value)
 
         dataManager.commit(configuration)
