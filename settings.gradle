@@ -1,5 +1,5 @@
 rootProject.name = 'cuba-component-default-values'
-def modulePrefix = 'app'
+def modulePrefix = 'defaultvalues'
 include(":${modulePrefix}-global", ":${modulePrefix}-core", ":${modulePrefix}-web", ":${modulePrefix}-gui")
 project(":${modulePrefix}-global").projectDir = new File(settingsDir, 'modules/global')
 project(":${modulePrefix}-core").projectDir = new File(settingsDir, 'modules/core')

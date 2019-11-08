@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<app-component xmlns="http://schemas.haulmont.com/cuba/app-component.xsd"
+               dependsOn="de.diedavids.cuba.entitysoftreference, de.balvi.cuba.declarativecontrollers, com.haulmont.cuba, de.diedavids.cuba.metadataextensions">
+
+    <module name="global" blocks="*">
+        <artifact name="defaultvalues-global" appJar="true"/>
+
+        <property name="cuba.persistenceConfig" value="+de/diedavids/cuba/defaultvalues/persistence.xml"/>
+        <property name="cuba.metadataConfig" value="+de/diedavids/cuba/defaultvalues/metadata.xml"/>
+        <property name="cuba.viewsConfig" value="+de/diedavids/cuba/defaultvalues/views.xml"/>
+    </module>
+    <module name="core" dependsOn="global" blocks="core">
+        <artifact name="defaultvalues-core" appJar="true"/>
+        <artifact name="defaultvalues-core" classifier="db" ext="zip" configuration="dbscripts"/>
+
+        <property name="cuba.springContextConfig" value="+de/diedavids/cuba/defaultvalues/spring.xml"/>
+        <property name="cuba.mainMessagePack" value="+de.diedavids.cuba.defaultvalues.core"/>
+    </module>
+    <module name="gui" dependsOn="global" blocks="web,desktop">
+        <artifact name="defaultvalues-gui" appJar="true"/>
+    </module>
+    <module name="web" dependsOn="gui" blocks="web">
+        <artifact name="defaultvalues-web" appJar="true"/>
+        <artifact name="defaultvalues-web" classifier="web" ext="zip" configuration="webcontent"/>
+
+        <property name="cuba.springContextConfig" value="+de/diedavids/cuba/defaultvalues/web-spring.xml"/>
+        <property name="cuba.dispatcherSpringContextConfig"
+                  value="+de/diedavids/cuba/defaultvalues/web-dispatcher-spring.xml"/>
+        <property name="cuba.windowConfig" value="+de/diedavids/cuba/defaultvalues/web-screens.xml"/>
+        <property name="cuba.menuConfig" value="+de/diedavids/cuba/defaultvalues/web-menu.xml"/>
+        <property name="cuba.permissionConfig" value="+de/diedavids/cuba/defaultvalues/web-permissions.xml"/>
+        <property name="cuba.mainMessagePack" value="+de.diedavids.cuba.defaultvalues.web"/>
+    </module>
+</app-component>
