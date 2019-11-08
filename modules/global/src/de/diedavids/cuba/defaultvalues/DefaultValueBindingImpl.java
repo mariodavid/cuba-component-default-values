@@ -7,8 +7,8 @@ import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Metadata;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
-import de.diedavids.cuba.defaultvalues.service.DefaultValuesConfigurationService;
 import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -18,25 +18,25 @@ import java.util.List;
 @Component(DefaultValueBinding.NAME)
 public class DefaultValueBindingImpl implements DefaultValueBinding {
 
-
-    @Inject
-    DefaultValuesConfigurationService defaultValuesConfigurationService;
-
     @Inject
     protected DataManager dataManager;
+
     @Inject
     protected Metadata metadata;
 
+    @Inject
+    protected Logger log;
+
     @Override
     public <T extends Entity> T bindDefaultValues(Class<T> entityClass, T entityInstance) {
-
 
         MetaClass metaClass = metadata.getClass(entityClass);
 
         List<EntityAttributeDefaultValue> entityAttributeDefaultValueList = getDefaultConfigurations(metaClass);
 
         entityAttributeDefaultValueList
-                .forEach(defaultValueConfiguration -> bindDefaultValue(entityInstance, metaClass, defaultValueConfiguration)
+                .forEach(defaultValueConfiguration ->
+                        bindDefaultValue(entityInstance, metaClass, defaultValueConfiguration)
                 );
 
         return entityInstance;
@@ -46,8 +46,8 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
 
         return dataManager.load(EntityAttributeDefaultValue.class)
                 .query("select e from ddcdv_EntityAttributeDefaultValue e where e.entity = :entity")
-        .parameter("entity", metaClass)
-        .list();
+                .parameter("entity", metaClass)
+                .list();
     }
 
     private <T extends Entity> void bindDefaultValue(T entityInstance, MetaClass metaClass, EntityAttributeDefaultValue entityAttributeDefaultValue) {
@@ -60,16 +60,14 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
                     property,
                     property.getRange().asDatatype()
             );
-        }
-        else if (property.getRange().isEnum()) {
+        } else if (property.getRange().isEnum()) {
             bindDatatypeDefaultValue(
                     entityInstance,
                     entityAttributeDefaultValue,
                     property,
                     property.getRange().asEnumeration()
             );
-        }
-        else if (property.getRange().isClass()) {
+        } else if (property.getRange().isClass()) {
             bindEntityDefaultValue(
                     entityInstance,
                     entityAttributeDefaultValue,
@@ -90,9 +88,10 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
             Object result = datatype.parse(entityAttributeDefaultValue.getValue());
             entityInstance.setValue(entityAttribute.getName(), result);
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error("The default value from EntityAttributeDefaultValue: {} could not be assigned to attribute: {}. Error: {}", entityAttributeDefaultValue, entityAttribute, e.getMessage());
         }
     }
+
     private <T extends Entity> void bindEntityDefaultValue(
             T entityInstance,
             EntityAttributeDefaultValue entityAttributeDefaultValue,
@@ -104,7 +103,7 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
             Object result = datatype.parse(entityAttributeDefaultValue.getValue());
             entityInstance.setValue(entityAttribute.getName(), result);
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error("The default value from EntityAttributeDefaultValue: {} could not be assigned to attribute: {}. Error: {}", entityAttributeDefaultValue, entityAttribute, e.getMessage());
         }
     }
 }

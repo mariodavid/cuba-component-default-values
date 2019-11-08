@@ -11,8 +11,6 @@
         <property name="serverSelector" ref="cuba_ServerSelector"/>
         <property name="remoteServices">
             <map>
-                <entry key="ddcdv_DefaultValuesConfigurationService"
-                       value="de.diedavids.cuba.defaultvalues.service.DefaultValuesConfigurationService"/>
             </map>
         </property>
     </bean>
