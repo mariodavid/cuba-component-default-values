@@ -20,7 +20,14 @@ buildscript {
     }
     dependencies {
         classpath "com.haulmont.gradle:cuba-plugin:$cubaVersion"
+
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
     }
+}
+
+
+plugins {
+    id 'net.researchgate.release' version '2.1.2'
 }
 
 def modulePrefix = 'app'
@@ -37,11 +44,51 @@ apply(plugin: 'cuba')
 cuba {
     artifact {
         group = 'de.diedavids.cuba.defaultvalues'
-        version = '0.1'
-        isSnapshot = true
+        version = project.properties['version'].replaceAll('-SNAPSHOT', '')
+        isSnapshot = project.properties['version'].contains('-SNAPSHOT')
     }
     tomcat {
         dir = "$project.rootDir/deploy/tomcat"
+    }
+}
+
+subprojects {
+    apply plugin: 'com.jfrog.bintray'
+
+    bintray {
+        user = System.getenv('BINTRAY_USERNAME')
+        key = System.getenv('BINTRAY_PASSWORD')
+
+        configurations = ['archives']
+
+        publish = true
+
+        override = false
+
+        // metadata
+        pkg {
+            repo = 'cuba-components'
+            name = 'cuba-component-default-values'
+            desc = 'CUBA component that lets you assign default values for entities'
+            userOrg = 'mariodavid'
+
+            websiteUrl = 'https://github.com/mariodavid/cuba-component-default-values'
+            issueTrackerUrl = 'https://github.com/mariodavid/cuba-component-default-values/issues'
+            vcsUrl = 'https://github.com/mariodavid/cuba-component-default-values.git'
+
+            licenses = ["Apache-2.0"]
+
+            labels = ['default-values', 'cuba-patform', 'cuba-component']
+            githubRepo = 'mariodavid/cuba-component-default-values'
+            githubReleaseNotesFile = 'CHANGELOG.md'
+
+            version {
+                name = "${cuba.artifact.version}"
+                desc = ''
+                released = new Date()
+                vcsTag = "${cuba.artifact.version}"
+            }
+        }
     }
 }
 
@@ -106,7 +153,7 @@ configure(globalModule) {
             enabled = true
         }
         test {
-            enabled = false
+            enabled = true
             persistenceConfig = 'defaultvalues-test-persistence.xml'
         }
     }

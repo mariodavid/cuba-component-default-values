@@ -1,0 +1,23 @@
+language: java
+jdk:
+- openjdk8
+cache:
+  directories:
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+before_install:
+- chmod +x ./gradlew
+- "./gradlew --no-daemon startDb"
+install:
+- "./gradlew --no-daemon createTestDb"
+script:
+- "./gradlew --no-daemon check --info"
+deploy:
+  provider: script
+  script: "./gradlew clean assemble bintrayUpload --debug"
+  on:
+    tags: true
+env:
+  global:
+  - secure: vnPvabmZetSW5qRlfP2XOrnt+KuMupWXDpVVZxlEkux1b4GOc7OU4p12Z34LR2/ZngFbIJGBS8J4d8iA5hIMebS+23NduJuHNGlg0B5/klEvW18gltqIazjzfx4HuGTwgwxVWgDi5Lbpxatc7Mn1sUzkvQrEYdKBr0HLo6qlUIyke3fBdcl2wGcV2YXU/Gd92upArRjL/Qbd+AHGS+4a1Wb/FtIZe4KePKGTi0lgQYWPsJ0E5tQybRMvzekJctRpUsYAh9ozxChoSlORPrAPAW6eJcMgj/D9BGzJWRj0Z5lZekjonqI6iGNnLRV6A1tieEELTqMOD/5ABOQ/EQCbXQqzlvc+tdCfJp5BQ6eh80GRAcUpKOb4W8cEvlPLVOpXERL9Vmtfyzf28+Qz4P2/4ehVjTGrwzSv1a5EqPzkQuCySkzqbiCIagjRh4DmGmphGCp7k96emsDWnJsqCnfIc4RQpl4BSGtYEgsveMTGeF6QpIBpP9xXefhTw7SrmOnEiRQiRl2lP22WjG0YJvVcJ7JQB5U+ozUtVIO9QWnCpls8dp2uDloRrPBOA5IO6l2kV+IeJ76HhFkgQcqGbxbrzBqmfu20CS5DkK0rtds/4FTFGQcXwP/e7qRah0Ow/lZLU30swwj37K0taYYuxKrZZKDkGAbu0laPPx9UU9tC2rI=
+  - secure: aObWJvpAACBE04ivNYWmO56IeK/KYxSVYF+WsA+lIHHGmjFCoxioUhcnDvVrW18US2tyis0/9T9AhOCavwRd0Oop6d6sJCYvG2y8YKJXa2eX8FEpH2Do1Txa0idqzcjZ/oFgrBupmRickiL8jbOs2Fg4f9XJLDK2lAABlYZKAcRs6Anbu3jGdNwufEVWNjaBQCZVBjtVGSNQfxzUdtt0TR4gI63y7SGbwZaRnW0Bp2h7lRNIJUpHUl3wvvq/J8UK7Pb+zqqjsjHtk3VvWrjdBIxSO9LM+uWgmi1a4ZUyZ6MZrbO7qTE1T5gnQ0Y9qI6eLnj135Obkz4hOYf8Vd03MukgcSWPxpwe4TVTHGa4A1vr5dh/Uu3gK3b0u1W8edvg5tTRJyKBNmStNVpWs3nxBNeUYJeWqfFZ3W+5/CMM6UDeR3UN5iv4bHWF4xodjXrfPsOkXZjjtKE7x7r/SQrj95xIm/8SepG9TPu1J5+CIii3pb1GOrgDSFdvnFVm1FyQOjWN5i1SRlsve3P+WfqR6lEdYxiRARMWaZKHIVRhKgtUZcqhIQaU3c4p6oCI0mzuGnDrmNQmlcssKGdUjdBez1QMAJNx4jGsHyXZS5tITQzi/zyWKGHspleXabZdWdXOngmhE7OlhkcewSReEXsdt79Dj0nQNjkGdtTMPYBqyy4=
