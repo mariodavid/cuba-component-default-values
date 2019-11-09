@@ -6,8 +6,11 @@ import com.haulmont.chile.core.model.MetaProperty;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Metadata;
+import com.haulmont.cuba.core.global.Scripting;
+import com.haulmont.cuba.core.global.UserSessionSource;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
+import groovy.lang.Binding;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +28,13 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
     protected Metadata metadata;
 
     @Inject
+    protected UserSessionSource userSessionSource;
+
+    @Inject
     protected Logger log;
+
+    @Inject
+    protected Scripting scripting;
 
     @Override
     public <T extends Entity> T bindDefaultValues(Class<T> entityClass, T entityInstance) {
@@ -84,12 +93,76 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
             Datatype<Object> datatype
     ) {
 
+
+        Object configuredDefaultValue = getConfiguredDefaultValue(entityAttributeDefaultValue, datatype);
         try {
-            Object result = datatype.parse(entityAttributeDefaultValue.getValue());
-            entityInstance.setValue(entityAttribute.getName(), result);
-        } catch (ParseException e) {
-            log.error("The default value from EntityAttributeDefaultValue: {} could not be assigned to attribute: {}. Error: {}", entityAttributeDefaultValue, entityAttribute, e.getMessage());
+            entityInstance.setValue(entityAttribute.getName(), configuredDefaultValue);
         }
+        catch (ClassCastException e) {
+            log.error("Returned value from Script evaluation cannot be assigned to attribute. Error message: {}",
+                    e.getMessage()
+            );
+            log.debug("Error details:", e);
+        }
+
+    }
+
+    private Object getConfiguredDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
+
+        switch (entityAttributeDefaultValue.getType()) {
+            case SESSION_ATTRIBUTE:
+                return getSessionAttributeValue(entityAttributeDefaultValue, datatype);
+            case SCRIPT:
+                return getScriptAttributeValue(entityAttributeDefaultValue, datatype);
+            default:
+                return getStaticAttributeValue(entityAttributeDefaultValue, datatype);
+        }
+    }
+
+    private Object getStaticAttributeValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
+        return formatFromDatatypeToObject(
+                entityAttributeDefaultValue.getValue(),
+                datatype
+        );
+    }
+
+    private Object getScriptAttributeValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
+
+        try {
+            return scripting.evaluateGroovy(
+                    entityAttributeDefaultValue.getValue(),
+                    new Binding()
+            );
+        }
+        catch (Exception e) {
+            log.error("Error while evaluating default value from: '{}' for EntityAttributeDefaultValue: {}. Error message: {}",
+                    entityAttributeDefaultValue.getValue(),
+                    entityAttributeDefaultValue,
+                    e.getMessage()
+            );
+            log.debug("Error details:", e);
+            return null;
+        }
+    }
+
+    private Object getSessionAttributeValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
+        if (entityAttributeDefaultValue.getValue().startsWith(":session$")) {
+            String sessionAttributeValue = userSessionSource.getUserSession().getAttribute(
+                    entityAttributeDefaultValue.getValue().replace(":session$", "")
+            );
+            return formatFromDatatypeToObject(sessionAttributeValue, datatype);
+        } else {
+            return null;
+        }
+    }
+
+    private Object formatFromDatatypeToObject(String defaultValue, Datatype<Object> datatype) {
+        try {
+            return datatype.parse(defaultValue);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private <T extends Entity> void bindEntityDefaultValue(

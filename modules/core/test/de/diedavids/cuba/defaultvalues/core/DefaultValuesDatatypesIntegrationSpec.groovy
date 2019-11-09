@@ -7,6 +7,7 @@ import com.haulmont.cuba.core.global.EntityLoadInfoBuilder
 import com.haulmont.cuba.core.global.Metadata
 import de.diedavids.cuba.defaultvalues.DdcdvTestContainer
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue
+import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType
 import de.diedavids.cuba.defaultvalues.entity.example.mlb.MlbPlayer
 import de.diedavids.cuba.defaultvalues.entity.example.mlb.MlbTeam
 import de.diedavids.cuba.defaultvalues.entity.example.mlb.State
@@ -16,31 +17,18 @@ import spock.lang.Specification
 
 import java.time.LocalDate
 
-class DefaultValuesDatatypesIntegrationSpec extends Specification {
+class DefaultValuesDatatypesIntegrationSpec extends DefaultValuesIntegrationSpec {
 
-
-    @Shared @ClassRule
-    public DdcdvTestContainer cont = DdcdvTestContainer.Common.INSTANCE
-
-    private Metadata metadata
-    private DataManager dataManager
-    private EntityAttributeDefaultValue configuration
     private EntityLoadInfoBuilder entityLoadInfoBuilder
 
     void setup()  {
-        dataManager = AppBeans.get(DataManager)
-        metadata = cont.metadata()
         entityLoadInfoBuilder = AppBeans.get(EntityLoadInfoBuilder)
-    }
-
-    void cleanup() {
-        cont.deleteRecord(configuration)
     }
 
     void "a String default value can be configured"() {
 
         given:
-        configuration = defaultValueConfiguration(
+        configuration = staticDefaultValue(
                 'ddcdv$MlbTeam',
                 'name',
                 'Boston Braves'
@@ -58,7 +46,7 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
     void "an Integer default value can be configured"() {
 
         given:
-        configuration = defaultValueConfiguration(
+        configuration = staticDefaultValue(
                 'ddcdv$MlbTeam',
                 'telephone',
                 '12313'
@@ -77,7 +65,7 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
     void "a Big Decimal default value can be configured"() {
 
         given:
-        configuration = defaultValueConfiguration(
+        configuration = staticDefaultValue(
                 'ddcdv$MlbPlayer',
                 'annualSalary',
                 '12313'
@@ -97,7 +85,7 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
     void "a Date default value can be configured"() {
 
         given:
-        configuration = defaultValueConfiguration(
+        configuration = staticDefaultValue(
                 'ddcdv$MlbPlayer',
                 'birthday',
                 '2019-01-01'
@@ -116,7 +104,7 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
     void "a boolean default value can be configured"() {
 
         given:
-        configuration = defaultValueConfiguration(
+        configuration = staticDefaultValue(
                 'ddcdv$MlbPlayer',
                 'leftHanded',
                 'true'
@@ -135,7 +123,7 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
     void "an Enum default value can be configured"() {
 
         given:
-        configuration = defaultValueConfiguration(
+        configuration = staticDefaultValue(
                 'ddcdv$MlbTeam',
                 'state',
                 'AZ'
@@ -161,7 +149,7 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
 
         def entityReference = entityLoadInfoBuilder.create(team).toString()
 
-        configuration = defaultValueConfiguration(
+        configuration = staticDefaultValue(
                 'ddcdv$MlbPlayer',
                 'team',
                 entityReference
@@ -174,15 +162,5 @@ class DefaultValuesDatatypesIntegrationSpec extends Specification {
         sut.team == mlbTeam
     }
 
-    private EntityAttributeDefaultValue defaultValueConfiguration(String entity, String entityAttribute, String value) {
-        EntityAttributeDefaultValue configuration = metadata.create(EntityAttributeDefaultValue.class)
-
-        def targetMetaClass = metadata.getClass(entity)
-        configuration.setEntity(targetMetaClass)
-        configuration.setEntityAttribute(targetMetaClass.getProperty(entityAttribute))
-        configuration.setValue(value)
-
-        dataManager.commit(configuration)
-    }
 
 }

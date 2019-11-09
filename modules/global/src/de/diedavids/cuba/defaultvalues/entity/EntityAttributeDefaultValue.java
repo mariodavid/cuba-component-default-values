@@ -6,6 +6,7 @@ import de.diedavids.cuba.metadataextensions.entity.EntityAttributeAwareStandardE
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @NamePattern("%s: %s|entityAttribute,value")
 @Table(name = "DDCDV_ENTITY_ATTRIBUTE_DEFAULT_VALUE")
@@ -15,6 +16,18 @@ public class EntityAttributeDefaultValue extends EntityAttributeAwareStandardEnt
 
     @Column(name = "VALUE_")
     protected String value;
+
+    @NotNull
+    @Column(name = "TYPE_", nullable = false)
+    protected String type;
+
+    public EntityAttributeDefaultValueType getType() {
+        return type == null ? null : EntityAttributeDefaultValueType.fromId(type);
+    }
+
+    public void setType(EntityAttributeDefaultValueType type) {
+        this.type = type == null ? null : type.getId();
+    }
 
     public String getValue() {
         return value;

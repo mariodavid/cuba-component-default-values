@@ -6,6 +6,7 @@ import com.haulmont.cuba.core.entity.StandardEntity;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Date;
 
 @NamePattern("%s|orderId")
@@ -18,10 +19,9 @@ public class Order extends StandardEntity {
     @Column(name = "ORDER_ID", nullable = false)
     protected String orderId;
 
-    @Temporal(TemporalType.DATE)
     @NotNull
     @Column(name = "ORDER_DATE", nullable = false)
-    protected Date orderDate;
+    protected LocalDate orderDate;
 
     @Temporal(TemporalType.DATE)
     @Column(name = "SHIPPING_DATE")
@@ -109,11 +109,11 @@ public class Order extends StandardEntity {
         return orderId;
     }
 
-    public void setOrderDate(Date orderDate) {
+    public void setOrderDate(LocalDate orderDate) {
         this.orderDate = orderDate;
     }
 
-    public Date getOrderDate() {
+    public LocalDate getOrderDate() {
         return orderDate;
     }
 
