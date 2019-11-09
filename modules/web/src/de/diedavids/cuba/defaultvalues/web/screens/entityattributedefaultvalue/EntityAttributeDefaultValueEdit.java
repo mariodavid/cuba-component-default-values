@@ -6,14 +6,19 @@ import com.haulmont.chile.core.model.MetaProperty;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.MessageTools;
 import com.haulmont.cuba.core.global.Metadata;
+import com.haulmont.cuba.gui.Dialogs;
+import com.haulmont.cuba.gui.Notifications;
+import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog;
-import com.haulmont.cuba.gui.components.Action;
-import com.haulmont.cuba.gui.components.Table;
+import com.haulmont.cuba.gui.app.core.inputdialog.InputParameter;
+import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.screen.*;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
+import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType;
+import de.diedavids.cuba.defaultvalues.service.SessionAttributeService;
 import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
 import de.diedavids.cuba.metadataextensions.EntityDialogs;
 import de.diedavids.cuba.metadataextensions.dataprovider.EntityDataProvider;
@@ -53,6 +58,14 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     protected CollectionContainer<EntityAttributeDefaultValue> entityAttributeDefaultValuesDc;
     @Inject
     protected Table<EntityAttributeDefaultValue> entityAttributeDefaultValuesTable;
+    @Inject
+    protected Dialogs dialogs;
+    @Inject
+    protected UiComponents uiComponents;
+    @Inject
+    protected SessionAttributeService sessionAttributeService;
+    @Inject
+    protected Notifications notifications;
 
 
     @Subscribe
@@ -85,7 +98,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
         return entityDataProvider.businessEntityAttributes(entityMetaClass).stream()
                 .filter(metaProperty -> !isToManyReference(metaProperty))
                 .filter(metaProperty ->
-                    !isPartOfExistingDefaultValues(existingDefaultValues, metaProperty)
+                        !isPartOfExistingDefaultValues(existingDefaultValues, metaProperty)
                 )
                 .map(this::createDefaultValueConfiguration)
                 .collect(Collectors.toList());
@@ -132,40 +145,96 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
         return messageTools.getPropertyCaption(metaProperty);
     }
 
-    @Subscribe("entityAttributeDefaultValuesTable.setDefaultValue")
-    protected void onDefaultValuesTableSetDefaultValue(Action.ActionPerformedEvent event) {
-
-        EntityAttributeDefaultValue entityAttributeDefaultValue = entityAttributeDefaultValuesTable.getSingleSelected();
-
+    private void staticDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
         Class<Entity> entityClass = entityAttributeDefaultValue.getEntity().getJavaClass();
 
         Entity entity = metadata.create(entityClass);
 
         entityDialogs.createEntityInputDialog(this, entityClass)
                 .withEntity(entity)
-                .withCaption(messageBundle.getMessage("setValueCaption"))
+                .withCaption(messageBundle.getMessage("staticDefaultValueCaption"))
                 .withParameter(
                         entityAttributeParameter(entityClass, entityAttributeDefaultValue.getEntityAttribute().getName())
-                            .withAutoBinding(true)
+                                .withRequired(true)
+                                .withAutoBinding(true)
                 )
                 .withCloseListener(new Consumer<InputDialog.InputDialogCloseEvent>() {
                     @Override
                     public void accept(InputDialog.InputDialogCloseEvent closeEvent) {
                         if (closeEvent.getCloseAction().equals(INPUT_DIALOG_OK_ACTION)) {
-                            setDefaultValue(entity, entityAttributeDefaultValue);
+                            setStaticDefaultValue(entity, entityAttributeDefaultValue);
+                        }
+                        else {
+                            resetEmptyDefaultValues();
                         }
                     }
                 })
                 .show();
-
     }
 
-    private void setDefaultValue(Entity entity, EntityAttributeDefaultValue entityAttributeDefaultValue) {
+    private void sessionAttributeDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        dialogs.createInputDialog(this)
+                .withCaption(
+                        messageBundle.getMessage("setSessionValueCaption")
+                )
+                .withParameter(
+                        InputParameter.stringParameter("sessionAttribute")
+                                .withField(() -> sessionAttributeLookupField(entityAttributeDefaultValue))
+                )
+                .withCloseListener(new Consumer<InputDialog.InputDialogCloseEvent>() {
+                    @Override
+                    public void accept(InputDialog.InputDialogCloseEvent closeEvent) {
+                        if (closeEvent.getCloseAction().equals(INPUT_DIALOG_OK_ACTION)) {
+                            setSessionAttributeDefaultValue(
+                                    entityAttributeDefaultValue,
+                                    closeEvent.getValue("sessionAttribute")
+                            );
+                        } else {
+                            resetEmptyDefaultValues();
+                        }
+                    }
+                })
+                .show();
+    }
+
+    private void resetEmptyDefaultValues() {
+        entityAttributeDefaultValuesDc.getItems()
+                .stream()
+                .filter(entityAttributeDefaultValue -> StringUtils.isEmpty(entityAttributeDefaultValue.getValue()))
+                .forEach(this::removeDefaultValue);
+    }
+
+    private Field sessionAttributeLookupField(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        LookupField lookupField = uiComponents.create(LookupField.class);
+        lookupField.setWidthFull();
+        lookupField.setRequired(true);
+        lookupField.setCaption(
+                messageTools.getPropertyCaption(entityAttributeDefaultValue.getEntityAttribute())
+        );
+
+        lookupField.setOptionsMap(
+                sessionAttributeService
+                        .getAvailableSessionAttributes()
+                        .stream()
+                        .collect(Collectors.toMap(x -> x, x -> ":session$" + x))
+        );
+        lookupField.setValue(entityAttributeDefaultValue.getValue());
+
+        return lookupField;
+    }
+
+    private void setSessionAttributeDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue, String sessionAttributeName) {
+        entityAttributeDefaultValue.setValue(sessionAttributeName);
+        entityAttributeDefaultValue.setType(EntityAttributeDefaultValueType.SESSION_ATTRIBUTE);
+    }
+
+    private void setStaticDefaultValue(Entity entity, EntityAttributeDefaultValue entityAttributeDefaultValue) {
         MetaProperty property = getEntityMetaClass().getProperty(entityAttributeDefaultValue.getEntityAttribute().getName());
         Object defaultValue = entity.getValue(entityAttributeDefaultValue.getEntityAttribute().getName());
         Datatype datatype = determineEntityAttributeDatatype(property);
         String formattedValue = datatype.format(defaultValue);
         entityAttributeDefaultValue.setValue(formattedValue);
+        entityAttributeDefaultValue.setType(EntityAttributeDefaultValueType.STATIC_VALUE);
     }
 
 
@@ -180,15 +249,88 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
             return metaProperty.getRange().asEnumeration();
         } else if (metaProperty.getRange().isClass()) {
             return new EntitySoftReferenceDatatype();
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     @Subscribe("entityAttributeDefaultValuesTable.removeDefaultValue")
     protected void onDefaultValuesTableRemoveDefaultValue(Action.ActionPerformedEvent event) {
-        entityAttributeDefaultValuesTable.getSingleSelected()
-                .setValue(null);
+        removeDefaultValue(entityAttributeDefaultValuesTable.getSingleSelected());
     }
+
+    private void removeDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        if (entityAttributeDefaultValue != null) {
+            entityAttributeDefaultValue.setValue(null);
+            entityAttributeDefaultValue.setType(null);
+        }
+    }
+
+    @Subscribe("entityAttributeDefaultValuesTable.changeDefaultValue")
+    protected void onEntityAttributeDefaultValuesTableChangeDefaultValue(Action.ActionPerformedEvent event) {
+        EntityAttributeDefaultValue entityAttributeDefaultValue = entityAttributeDefaultValuesTable.getSingleSelected();
+
+        if (entityAttributeDefaultValue == null || entityAttributeDefaultValue.getType() == null) {
+            dialogs.createInputDialog(this)
+                    .withCaption(messageBundle.getMessage("selectDefaultValueTypeCaption"))
+                    .withParameter(
+                            InputParameter.parameter(
+                                    "entityAttributeDefaultValueType"
+                            )
+                                    .withField(() -> {
+                                        RadioButtonGroup radioButtonGroup = uiComponents.create(RadioButtonGroup.class);
+                                        radioButtonGroup.setWidthFull();
+                                        radioButtonGroup.setRequired(true);
+                                        radioButtonGroup.setOrientation(HasOrientation.Orientation.HORIZONTAL);
+                                        radioButtonGroup.setOptionsEnum(EntityAttributeDefaultValueType.class);
+                                        radioButtonGroup.setValue(EntityAttributeDefaultValueType.STATIC_VALUE);
+                                        return radioButtonGroup;
+                                    })
+                    )
+                    .withCloseListener(new Consumer<InputDialog.InputDialogCloseEvent>() {
+                        @Override
+                        public void accept(InputDialog.InputDialogCloseEvent closeEvent) {
+                            if (closeEvent.getCloseAction().equals(INPUT_DIALOG_OK_ACTION)) {
+                                entityAttributeDefaultValue.setType(
+                                        closeEvent.getValue("entityAttributeDefaultValueType")
+                                );
+                                entityAttributeDefaultValueDialog(entityAttributeDefaultValue);
+                            }
+                        }
+                    })
+                    .show();
+        } else {
+            entityAttributeDefaultValueDialog(entityAttributeDefaultValue);
+        }
+
+    }
+
+    private void entityAttributeDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        if (entityAttributeDefaultValue == null) {
+            notifications.create(Notifications.NotificationType.WARNING)
+                    .withCaption(messageBundle.getMessage("selectEntityAttributeFirst"))
+                    .show();
+        } else {
+            switch (entityAttributeDefaultValue.getType()) {
+                case SESSION_ATTRIBUTE:
+                    sessionAttributeDefaultValueDialog(entityAttributeDefaultValue);
+                    break;
+                case STATIC_VALUE:
+                    staticDefaultValueDialog(entityAttributeDefaultValue);
+                    break;
+                case SCRIPT:
+                    scriptDefaultValueDialog(entityAttributeDefaultValue);
+                    break;
+            }
+        }
+
+    }
+
+    private void scriptDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        notifications.create(Notifications.NotificationType.WARNING)
+                .withCaption(messageBundle.getMessage("notSupportedYet"))
+                .show();
+        resetEmptyDefaultValues();
+    }
+
 }

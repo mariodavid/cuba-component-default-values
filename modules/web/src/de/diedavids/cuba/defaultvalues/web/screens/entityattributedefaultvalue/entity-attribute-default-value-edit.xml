@@ -37,8 +37,7 @@
                 width="100%"
         >
             <actions>
-                <action id="setDefaultValue"
-                        trackSelection="true"
+                <action id="changeDefaultValue"
                         caption="msg://setDefaultValue"
                         type="edit"
                 />
@@ -53,7 +52,7 @@
                 <column id="value" />
             </columns>
             <buttonsPanel>
-                <button id="editBtn" action="entityAttributeDefaultValuesTable.setDefaultValue" />
+                <button id="changeDefaultValueBtn" action="entityAttributeDefaultValuesTable.changeDefaultValue" />
                 <button id="removeBtn" action="entityAttributeDefaultValuesTable.removeDefaultValue" />
             </buttonsPanel>
             <rows/>

@@ -11,6 +11,8 @@
         <property name="serverSelector" ref="cuba_ServerSelector"/>
         <property name="remoteServices">
             <map>
+                <entry key="ddcdv_SessionAttributeService"
+                       value="de.diedavids.cuba.defaultvalues.service.SessionAttributeService"/>
             </map>
         </property>
     </bean>
