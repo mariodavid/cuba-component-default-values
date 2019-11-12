@@ -17,10 +17,13 @@ import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType;
 import de.diedavids.cuba.defaultvalues.service.SessionAttributeService;
 import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.EditDataContextDelegate;
-import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.typedelegate.DefaultValueTypeEditDelegate;
-import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.typedelegate.ScriptEditDelegate;
-import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.typedelegate.SessionAttributeEditDelegate;
-import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.typedelegate.StaticValueEditDelegate;
+import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.columngenerator.ScriptColumnGenerator;
+import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.columngenerator.SessionAttributeColumnGenerator;
+import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.columngenerator.StaticValueColumnGenerator;
+import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs.DefaultValueTypeDialog;
+import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs.ScriptDialog;
+import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs.SessionAttributeDialog;
+import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs.StaticValueDialog;
 import de.diedavids.cuba.metadataextensions.EntityDialogs;
 import de.diedavids.cuba.metadataextensions.dataprovider.EntityDataProvider;
 import de.diedavids.cuba.metadataextensions.entity.MetaClassEntity;
@@ -74,9 +77,10 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     protected EntityLoadInfoBuilder entityLoadInfoBuilder;
 
 
-    private DefaultValueTypeEditDelegate staticValueEditDelegate;
-    private DefaultValueTypeEditDelegate sessionAttributeEditDelegate;
-    private DefaultValueTypeEditDelegate scriptEditDelegate;
+    private DefaultValueTypeDialog staticValueDialog;
+    private DefaultValueTypeDialog sessionAttributeDialog;
+    private DefaultValueTypeDialog scriptDialog;
+
 
     private EditDataContextDelegate dataContextDelegate;
 
@@ -84,17 +88,13 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     protected void onInit(InitEvent event) {
 
 
-        staticValueEditDelegate = new StaticValueEditDelegate(
+        staticValueDialog = new StaticValueDialog(
                 metadata,
                 messageBundle,
-                entityDialogs,
-                messages,
-                dataManager,
-                entityLoadInfoBuilder
+                entityDialogs
         );
 
-        sessionAttributeEditDelegate = new SessionAttributeEditDelegate(
-                metadata,
+        sessionAttributeDialog = new SessionAttributeDialog(
                 dialogs,
                 messageBundle,
                 uiComponents,
@@ -102,8 +102,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                 sessionAttributeService
         );
 
-        scriptEditDelegate = new ScriptEditDelegate(
-                metadata,
+        scriptDialog = new ScriptDialog(
                 messageBundle,
                 uiComponents,
                 dialogs
@@ -143,7 +142,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     }
 
     private void staticDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        staticValueEditDelegate.openDialog(
+        staticValueDialog.openDialog(
                 entityAttributeDefaultValue,
                 this,
                 this::resetEmptyDefaultValues
@@ -151,7 +150,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     }
 
     private void sessionAttributeDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        sessionAttributeEditDelegate.openDialog(
+        sessionAttributeDialog.openDialog(
                 entityAttributeDefaultValue,
                 this,
                 this::resetEmptyDefaultValues
@@ -159,7 +158,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     }
 
     private void scriptDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        scriptEditDelegate.openDialog(
+        scriptDialog.openDialog(
                 entityAttributeDefaultValue,
                 this,
                 this::resetEmptyDefaultValues
@@ -251,13 +250,18 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
 
             switch (entityAttributeDefaultValue.getType()) {
                 case SESSION_ATTRIBUTE:
-                    field.setValue(sessionAttributeEditDelegate.getUiValue(entityAttributeDefaultValue));
+                    field.setValue(new SessionAttributeColumnGenerator().getUiValue(entityAttributeDefaultValue));
                     break;
                 case SCRIPT:
-                    field.setValue(scriptEditDelegate.getUiValue(entityAttributeDefaultValue));
+                    field.setValue(new ScriptColumnGenerator().getUiValue(entityAttributeDefaultValue));
                     break;
                 case STATIC_VALUE:
-                    field.setValue(staticValueEditDelegate.getUiValue(entityAttributeDefaultValue));
+                    field.setValue(new StaticValueColumnGenerator(
+                            metadata,
+                            messages,
+                            entityLoadInfoBuilder,
+                            dataManager
+                    ).getUiValue(entityAttributeDefaultValue));
                     break;
             }
 

@@ -1,8 +1,7 @@
-package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.typedelegate;
+package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs;
 
 
 import com.haulmont.cuba.core.global.MessageTools;
-import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog;
@@ -19,20 +18,17 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
-import static de.diedavids.cuba.metadataextensions.EntityAttributeInputParameter.entityAttributeParameter;
 
-public class SessionAttributeEditDelegate implements DefaultValueTypeEditDelegate {
+public class SessionAttributeDialog implements DefaultValueTypeDialog {
 
 
-    private final Metadata metadata;
     private final Dialogs dialogs;
     private final MessageBundle messageBundle;
     private final UiComponents uiComponents;
     private final MessageTools messageTools;
     private final SessionAttributeService sessionAttributeService;
 
-    public SessionAttributeEditDelegate(
-            Metadata metadata,
+    public SessionAttributeDialog(
             Dialogs dialogs,
             MessageBundle messageBundle,
             UiComponents uiComponents,
@@ -40,7 +36,6 @@ public class SessionAttributeEditDelegate implements DefaultValueTypeEditDelegat
             SessionAttributeService sessionAttributeService
     ) {
 
-        this.metadata = metadata;
         this.dialogs = dialogs;
         this.messageBundle = messageBundle;
         this.uiComponents = uiComponents;
@@ -80,16 +75,6 @@ public class SessionAttributeEditDelegate implements DefaultValueTypeEditDelegat
                 .show();
     }
 
-    @Override
-    public String getUiValue(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        if (entityAttributeDefaultValue != null) {
-            return entityAttributeDefaultValue.getValue().replaceAll("\\:session\\$", "");
-        }
-        else {
-            return null;
-        }
-    }
-
     private Field sessionAttributeLookupField(EntityAttributeDefaultValue entityAttributeDefaultValue) {
         LookupField lookupField = uiComponents.create(LookupField.class);
         lookupField.setWidthFull();
@@ -113,6 +98,5 @@ public class SessionAttributeEditDelegate implements DefaultValueTypeEditDelegat
         entityAttributeDefaultValue.setValue(sessionAttributeName);
         entityAttributeDefaultValue.setType(EntityAttributeDefaultValueType.SESSION_ATTRIBUTE);
     }
-
 
 }
