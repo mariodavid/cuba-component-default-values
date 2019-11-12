@@ -6,4 +6,5 @@ public interface SessionAttributeService {
     String NAME = "ddcdv_SessionAttributeService";
 
     List<String> getAvailableSessionAttributes();
+
 }

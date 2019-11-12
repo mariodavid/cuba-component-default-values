@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 public enum EntityAttributeDefaultValueType implements EnumClass<String> {
 
     STATIC_VALUE("STATIC_VALUE"),
+    DYNAMIC_VALUE("DYNAMIC_VALUE"),
     SESSION_ATTRIBUTE("SESSION_ATTRIBUTE"),
     SCRIPT("SCRIPT");
 

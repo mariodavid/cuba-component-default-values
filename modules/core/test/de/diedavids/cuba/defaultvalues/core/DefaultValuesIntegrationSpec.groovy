@@ -89,6 +89,16 @@ abstract class DefaultValuesIntegrationSpec extends Specification {
     }
 
 
+    protected EntityAttributeDefaultValue dynamicDefaultValue(String entity, String entityAttribute, String value) {
+        defaultValueConfiguration(
+                EntityAttributeDefaultValueType.DYNAMIC_VALUE,
+                entity,
+                entityAttribute,
+                value
+        )
+    }
+
+
     protected void clearTable(String tableName) {
         String sql = "delete from $tableName"
         QueryRunner runner = new QueryRunner(cont.persistence().getDataSource());

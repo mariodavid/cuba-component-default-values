@@ -13,17 +13,16 @@ import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.screen.*;
+import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProviders;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType;
 import de.diedavids.cuba.defaultvalues.service.SessionAttributeService;
 import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.EditDataContextDelegate;
+import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.columngenerator.DynamicValueColumnGenerator;
 import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.columngenerator.ScriptColumnGenerator;
 import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.columngenerator.SessionAttributeColumnGenerator;
 import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.columngenerator.StaticValueColumnGenerator;
-import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs.DefaultValueTypeDialog;
-import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs.ScriptDialog;
-import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs.SessionAttributeDialog;
-import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs.StaticValueDialog;
+import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs.*;
 import de.diedavids.cuba.metadataextensions.EntityDialogs;
 import de.diedavids.cuba.metadataextensions.dataprovider.EntityDataProvider;
 import de.diedavids.cuba.metadataextensions.entity.MetaClassEntity;
@@ -76,10 +75,13 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     @Inject
     protected EntityLoadInfoBuilder entityLoadInfoBuilder;
 
+    @Inject
+    protected DynamicValueProviders dynamicValueProviders;
 
     private DefaultValueTypeDialog staticValueDialog;
     private DefaultValueTypeDialog sessionAttributeDialog;
     private DefaultValueTypeDialog scriptDialog;
+    private DefaultValueTypeDialog dynamicValueDialog;
 
 
     private EditDataContextDelegate dataContextDelegate;
@@ -92,6 +94,14 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                 metadata,
                 messageBundle,
                 entityDialogs
+        );
+
+        dynamicValueDialog = new DynamicValueDialog(
+                dialogs,
+                messageBundle,
+                uiComponents,
+                messages,
+                dynamicValueProviders
         );
 
         sessionAttributeDialog = new SessionAttributeDialog(
@@ -148,6 +158,13 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                 this::resetEmptyDefaultValues
         );
     }
+    private void dynamicDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        dynamicValueDialog.openDialog(
+                entityAttributeDefaultValue,
+                this,
+                this::resetEmptyDefaultValues
+        );
+    }
 
     private void sessionAttributeDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
         sessionAttributeDialog.openDialog(
@@ -199,9 +216,11 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                                         RadioButtonGroup radioButtonGroup = uiComponents.create(RadioButtonGroup.class);
                                         radioButtonGroup.setWidthFull();
                                         radioButtonGroup.setRequired(true);
-                                        radioButtonGroup.setOrientation(HasOrientation.Orientation.HORIZONTAL);
+                                        radioButtonGroup.setOrientation(HasOrientation.Orientation.VERTICAL);
                                         radioButtonGroup.setOptionsEnum(EntityAttributeDefaultValueType.class);
                                         radioButtonGroup.setValue(EntityAttributeDefaultValueType.STATIC_VALUE);
+
+
                                         return radioButtonGroup;
                                     })
                     )
@@ -235,6 +254,9 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                 case STATIC_VALUE:
                     staticDefaultValueDialog(entityAttributeDefaultValue);
                     break;
+                case DYNAMIC_VALUE:
+                    dynamicDefaultValueDialog(entityAttributeDefaultValue);
+                    break;
                 case SCRIPT:
                     scriptDefaultValueDialog(entityAttributeDefaultValue);
                     break;
@@ -255,6 +277,9 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                 case SCRIPT:
                     field.setValue(new ScriptColumnGenerator().getUiValue(entityAttributeDefaultValue));
                     break;
+                case DYNAMIC_VALUE:
+                    field.setValue(new DynamicValueColumnGenerator(messages).getUiValue(entityAttributeDefaultValue));
+                    break;
                 case STATIC_VALUE:
                     field.setValue(new StaticValueColumnGenerator(
                             metadata,
@@ -264,7 +289,6 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                     ).getUiValue(entityAttributeDefaultValue));
                     break;
             }
-
         }
         return field;
     }

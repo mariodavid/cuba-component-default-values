@@ -8,6 +8,7 @@ import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.core.global.Scripting;
 import com.haulmont.cuba.core.global.UserSessionSource;
+import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProvider;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
 import groovy.lang.Binding;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.inject.Inject;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Component(DefaultValueBinding.NAME)
 public class DefaultValueBindingImpl implements DefaultValueBinding {
@@ -36,6 +38,9 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
 
     @Inject
     protected Scripting scripting;
+
+    @Inject
+    protected List<DynamicValueProvider> dynamicValueProviders;
 
     @Override
     public <T extends Entity> T bindDefaultValues(Class<T> entityClass, T entityInstance) {
@@ -108,26 +113,78 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
 
     }
 
+
+    private <T extends Entity> void bindEntityDefaultValue(
+            T entityInstance,
+            EntityAttributeDefaultValue entityAttributeDefaultValue,
+            MetaProperty entityAttribute
+    ) {
+
+        try {
+            Datatype datatype = new EntitySoftReferenceDatatype();
+            Object result = getConfiguredDefaultValue(entityAttributeDefaultValue, datatype);
+            entityInstance.setValue(entityAttribute.getName(), result);
+        }
+        catch (ClassCastException e) {
+            log.error("Returned value from Script evaluation cannot be assigned to attribute. Error message: {}",
+                    e.getMessage()
+            );
+            log.debug("Error details:", e);
+        }
+    }
+
     private Object getConfiguredDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
 
         switch (entityAttributeDefaultValue.getType()) {
             case SESSION_ATTRIBUTE:
                 return getSessionAttributeValue(entityAttributeDefaultValue, datatype);
             case SCRIPT:
-                return getScriptAttributeValue(entityAttributeDefaultValue, datatype);
+                return getScriptDefaultValue(entityAttributeDefaultValue, datatype);
+            case DYNAMIC_VALUE:
+                return getDynamicDefaultValue(entityAttributeDefaultValue, datatype);
             default:
-                return getStaticAttributeValue(entityAttributeDefaultValue, datatype);
+                return getStaticDefaultValue(entityAttributeDefaultValue, datatype);
         }
     }
 
-    private Object getStaticAttributeValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
+    private Object getStaticDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
         return formatFromDatatypeToObject(
                 entityAttributeDefaultValue.getValue(),
                 datatype
         );
     }
 
-    private Object getScriptAttributeValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
+    private Object getDynamicDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
+
+        Optional<DynamicValueProvider> foundDynamicDefaultValue = dynamicValueProviders.stream()
+                .filter(dynamicValueProvider -> dynamicValueProvider.getCode().equals(entityAttributeDefaultValue.getValue()))
+                .findFirst();
+
+        if (foundDynamicDefaultValue.isPresent()) {
+
+            MetaProperty entityAttribute = entityAttributeDefaultValue.getEntityAttribute();
+            DynamicValueProvider dynamicValueProvider = foundDynamicDefaultValue.get();
+
+            if (dynamicValueProvider.getReturnType().isAssignableFrom(entityAttribute.getJavaType())) {
+                return dynamicValueProvider.get();
+            }
+            else {
+                log.error(
+                        "Mismatch of configured types. Type of MetaProperty: '{}' is '{}', return type of '{}' is '{}'",
+                        entityAttribute.toString(),
+                        entityAttribute.getJavaType().getName(),
+                        dynamicValueProvider.getCode(),
+                        dynamicValueProvider.getReturnType()
+
+                );
+                return null;
+            }
+        }
+
+        return null;
+    }
+
+    private Object getScriptDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
 
         try {
             Object result = scripting.evaluateGroovy(
@@ -173,18 +230,4 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
         return false;
     }
 
-    private <T extends Entity> void bindEntityDefaultValue(
-            T entityInstance,
-            EntityAttributeDefaultValue entityAttributeDefaultValue,
-            MetaProperty entityAttribute
-    ) {
-
-        try {
-            Datatype datatype = new EntitySoftReferenceDatatype();
-            Object result = datatype.parse(entityAttributeDefaultValue.getValue());
-            entityInstance.setValue(entityAttribute.getName(), result);
-        } catch (ParseException e) {
-            log.error("The default value from EntityAttributeDefaultValue: {} could not be assigned to attribute: {}. Error: {}", entityAttributeDefaultValue, entityAttribute, e.getMessage());
-        }
-    }
 }

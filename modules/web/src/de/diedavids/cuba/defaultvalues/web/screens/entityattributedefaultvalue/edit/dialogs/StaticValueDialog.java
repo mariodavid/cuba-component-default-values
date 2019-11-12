@@ -47,7 +47,6 @@ public class StaticValueDialog implements DefaultValueTypeDialog {
 
         entityDialogs.createEntityInputDialog(frameOwner, entityClass)
                 .withEntity(entity)
-                //.withCaption(messageBundle.getMessage("staticDefaultValueCaption"))
                 .withCaption(messageBundle.getMessage("staticDefaultValueCaption"))
                 .withParameter(
                         entityAttributeParameter(entityClass, entityAttributeDefaultValue.getEntityAttribute().getName())
@@ -69,7 +68,7 @@ public class StaticValueDialog implements DefaultValueTypeDialog {
 
     private void setStaticDefaultValue(Entity entity, EntityAttributeDefaultValue entityAttributeDefaultValue) {
 
-        // MetaProperty property = getEntityMetaClass().getProperty(entityAttributeDefaultValue.getEntityAttribute().getName());
+        // MetaProperty property = getEntityMetaClass().getProperty(entityAttributeDefaultValue.getEntityAttribute().getCode());
         Object defaultValue = entity.getValue(entityAttributeDefaultValue.getEntityAttribute().getName());
         //Datatype datatype = determineEntityAttributeDatatype(property);
         Datatype datatype = determineEntityAttributeDatatype(entityAttributeDefaultValue.getEntityAttribute());

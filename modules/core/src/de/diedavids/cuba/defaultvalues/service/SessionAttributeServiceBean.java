@@ -23,4 +23,5 @@ public class SessionAttributeServiceBean implements SessionAttributeService {
                 .distinct()
                 .collect(Collectors.toList());
     }
+
 }
