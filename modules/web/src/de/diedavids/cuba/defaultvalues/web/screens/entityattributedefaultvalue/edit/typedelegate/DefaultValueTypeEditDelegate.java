@@ -1,4 +1,4 @@
-package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.typedelegate;
+package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.typedelegate;
 
 import com.haulmont.cuba.gui.screen.FrameOwner;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
@@ -11,4 +11,6 @@ public interface DefaultValueTypeEditDelegate {
             FrameOwner frameOwner,
             Runnable afterCancelHandler
     );
+
+    String getUiValue(EntityAttributeDefaultValue entityAttributeDefaultValue);
 }

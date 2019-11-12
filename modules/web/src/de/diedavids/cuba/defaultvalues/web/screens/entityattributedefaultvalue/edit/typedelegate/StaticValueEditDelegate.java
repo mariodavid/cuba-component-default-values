@@ -1,10 +1,13 @@
-package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.typedelegate;
+package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.typedelegate;
 
 
+import com.google.common.base.Strings;
 import com.haulmont.chile.core.datatypes.Datatype;
+import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.chile.core.model.MetaProperty;
+import com.haulmont.chile.core.model.Range;
 import com.haulmont.cuba.core.entity.Entity;
-import com.haulmont.cuba.core.global.Metadata;
+import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog;
 import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.MessageBundle;
@@ -13,6 +16,7 @@ import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType;
 import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
 import de.diedavids.cuba.metadataextensions.EntityDialogs;
 
+import java.text.ParseException;
 import java.util.function.Consumer;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
@@ -23,12 +27,25 @@ public class StaticValueEditDelegate implements DefaultValueTypeEditDelegate {
     private final Metadata metadata;
     private final MessageBundle messageBundle;
     private final EntityDialogs entityDialogs;
+    private final Messages messages;
+    private final DataManager dataManager;
+    private final EntityLoadInfoBuilder entityLoadInfoBuilder;
 
-    public StaticValueEditDelegate(Metadata metadata, MessageBundle messageBundle, EntityDialogs entityDialogs) {
+    public StaticValueEditDelegate(
+            Metadata metadata,
+            MessageBundle messageBundle,
+            EntityDialogs entityDialogs,
+            Messages messages,
+            DataManager dataManager,
+            EntityLoadInfoBuilder entityLoadInfoBuilder
+    ) {
 
         this.metadata = metadata;
         this.messageBundle = messageBundle;
         this.entityDialogs = entityDialogs;
+        this.messages = messages;
+        this.dataManager = dataManager;
+        this.entityLoadInfoBuilder = entityLoadInfoBuilder;
     }
 
     @Override
@@ -87,5 +104,70 @@ public class StaticValueEditDelegate implements DefaultValueTypeEditDelegate {
         }
     }
 
+
+    @Override
+    public String getUiValue(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        Range range = entityAttributeDefaultValue.getEntityAttribute().getRange();
+
+
+        if (range.isClass()) {
+            Entity reference = convertToEntityAttribute(entityAttributeDefaultValue.getValue());
+            if (reference != null) {
+                return metadata.getTools().getInstanceName(reference);
+            }
+            else {
+                return null;
+            }
+        }
+        else if (range.isEnum()) {
+
+            try {
+                Datatype datatype = determineEntityAttributeDatatype(entityAttributeDefaultValue.getEntityAttribute());
+                Object defaultValue = datatype.parse(entityAttributeDefaultValue.getValue());
+                return messages.getMessage((Enum) defaultValue);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            return entityAttributeDefaultValue.getValue();
+        }
+
+        return null;
+    }
+
+
+    public Entity convertToEntityAttribute(String value) {
+
+
+        if (Strings.isNullOrEmpty(value))
+            return null;
+
+        EntityLoadInfo entityLoadInfo = entityLoadInfoBuilder.parse(value);
+
+        Entity entity = null;
+
+        if (entityLoadInfo != null) {
+            entity = loadEntity(entityLoadInfo);
+        }
+
+        return entity;
+    }
+
+    private Entity loadEntity(EntityLoadInfo entityLoadInfo) {
+        return dataManager.load(
+                getLoadContextForForEntityLoadInfo(
+                        entityLoadInfo.getMetaClass(),
+                        entityLoadInfo.getId()
+                )
+        );
+    }
+
+    protected LoadContext getLoadContextForForEntityLoadInfo(MetaClass metaClass, Object entityId) {
+        LoadContext loadContext = LoadContext.create(metaClass.getJavaClass());
+        loadContext
+                .setId(entityId);
+        return loadContext;
+    }
 
 }

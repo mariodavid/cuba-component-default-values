@@ -1,4 +1,4 @@
-package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.typedelegate;
+package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.typedelegate;
 
 
 import com.haulmont.cuba.core.global.MessageTools;
@@ -31,7 +31,14 @@ public class SessionAttributeEditDelegate implements DefaultValueTypeEditDelegat
     private final MessageTools messageTools;
     private final SessionAttributeService sessionAttributeService;
 
-    public SessionAttributeEditDelegate(Metadata metadata, Dialogs dialogs, MessageBundle messageBundle, UiComponents uiComponents, MessageTools messageTools, SessionAttributeService sessionAttributeService) {
+    public SessionAttributeEditDelegate(
+            Metadata metadata,
+            Dialogs dialogs,
+            MessageBundle messageBundle,
+            UiComponents uiComponents,
+            MessageTools messageTools,
+            SessionAttributeService sessionAttributeService
+    ) {
 
         this.metadata = metadata;
         this.dialogs = dialogs;
@@ -71,6 +78,16 @@ public class SessionAttributeEditDelegate implements DefaultValueTypeEditDelegat
                     }
                 })
                 .show();
+    }
+
+    @Override
+    public String getUiValue(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        if (entityAttributeDefaultValue != null) {
+            return entityAttributeDefaultValue.getValue().replaceAll("\\:session\\$", "");
+        }
+        else {
+            return null;
+        }
     }
 
     private Field sessionAttributeLookupField(EntityAttributeDefaultValue entityAttributeDefaultValue) {

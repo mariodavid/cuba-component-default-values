@@ -1,9 +1,6 @@
-package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.typedelegate;
+package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.typedelegate;
 
 
-import com.haulmont.chile.core.datatypes.Datatype;
-import com.haulmont.chile.core.model.MetaProperty;
-import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.UiComponents;
@@ -15,8 +12,6 @@ import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.MessageBundle;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType;
-import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
-import de.diedavids.cuba.metadataextensions.EntityDialogs;
 
 import java.util.function.Consumer;
 
@@ -30,7 +25,12 @@ public class ScriptEditDelegate implements DefaultValueTypeEditDelegate {
     private final UiComponents uiComponents;
     private final Dialogs dialogs;
 
-    public ScriptEditDelegate(Metadata metadata, MessageBundle messageBundle, UiComponents uiComponents, Dialogs dialogs) {
+    public ScriptEditDelegate(
+            Metadata metadata,
+            MessageBundle messageBundle,
+            UiComponents uiComponents,
+            Dialogs dialogs
+    ) {
 
         this.metadata = metadata;
         this.messageBundle = messageBundle;
@@ -67,6 +67,11 @@ public class ScriptEditDelegate implements DefaultValueTypeEditDelegate {
                     }
                 })
                 .show();
+    }
+
+    @Override
+    public String getUiValue(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        return "...";
     }
 
     private void setScriptAttributeDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue, String scriptValue) {
