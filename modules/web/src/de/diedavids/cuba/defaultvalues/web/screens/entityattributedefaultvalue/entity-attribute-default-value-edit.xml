@@ -49,6 +49,7 @@
             </actions>
             <columns>
                 <column id="entityAttribute" />
+                <column id="type" />
                 <column id="value" />
             </columns>
             <buttonsPanel>

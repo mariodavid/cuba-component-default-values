@@ -11,6 +11,7 @@ import com.haulmont.cuba.core.global.UserSessionSource;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
 import groovy.lang.Binding;
+import org.codehaus.groovy.runtime.GStringImpl;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -129,10 +130,17 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
     private Object getScriptAttributeValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
 
         try {
-            return scripting.evaluateGroovy(
+            Object result = scripting.evaluateGroovy(
                     entityAttributeDefaultValue.getValue(),
                     new Binding()
             );
+
+            if (result instanceof GStringImpl) {
+                return result.toString();
+            }
+            else {
+                return result;
+            }
         }
         catch (Exception e) {
             log.error("Error while evaluating default value from: '{}' for EntityAttributeDefaultValue: {}. Error message: {}",

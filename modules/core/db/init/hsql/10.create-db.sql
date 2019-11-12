@@ -11,7 +11,7 @@ create table DDCDV_ENTITY_ATTRIBUTE_DEFAULT_VALUE (
     ENTITY varchar(255),
     ENTITY_ATTRIBUTE varchar(255),
     --
-    VALUE_ varchar(255),
+    VALUE_ longvarchar,
     TYPE_ varchar(50) not null,
     --
     primary key (ID)

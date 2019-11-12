@@ -5,6 +5,7 @@ import de.diedavids.cuba.metadataextensions.entity.EntityAttributeAwareStandardE
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotNull;
 public class EntityAttributeDefaultValue extends EntityAttributeAwareStandardEntity {
     private static final long serialVersionUID = -2613764553714339761L;
 
+    @Lob
     @Column(name = "VALUE_")
     protected String value;
 
