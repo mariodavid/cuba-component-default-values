@@ -5,9 +5,11 @@ import com.haulmont.cuba.core.global.LoadContext;
 import com.haulmont.cuba.core.global.MessageTools;
 import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.core.global.MetadataTools;
+import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.ScreenBuilders;
 import com.haulmont.cuba.gui.components.Action;
 import com.haulmont.cuba.gui.components.Table;
+import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.screen.*;
 import de.diedavids.cuba.metadataextensions.entity.MetaClassEntity;
 
@@ -31,6 +33,20 @@ public class EntityAttributeDefaultValueBrowse extends Screen {
     protected ScreenBuilders screenBuilders;
     @Inject
     protected Table<MetaClassEntity> metaClassEntitiesTable;
+    @Inject
+    protected Notifications notifications;
+
+    @Inject
+    protected CollectionContainer<MetaClassEntity> metaClassEntitiesDc;
+
+    @Subscribe
+    protected void onAfterShow(AfterShowEvent event) {
+        notifications.create(Notifications.NotificationType.TRAY)
+                .withCaption("helll")
+                .show();
+    }
+
+
 
     @Install(to = "metaClassEntityDl", target = Target.DATA_LOADER)
     protected List<MetaClassEntity> loadEntities(LoadContext<MetaClassEntity> loadContext) {
