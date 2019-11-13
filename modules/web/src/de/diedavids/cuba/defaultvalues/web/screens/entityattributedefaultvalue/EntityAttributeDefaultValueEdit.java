@@ -78,10 +78,10 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     @Inject
     protected DynamicValueProviders dynamicValueProviders;
 
-    private DefaultValueTypeDialog staticValueDialog;
-    private DefaultValueTypeDialog sessionAttributeDialog;
-    private DefaultValueTypeDialog scriptDialog;
-    private DefaultValueTypeDialog dynamicValueDialog;
+    private DefaultValueTypeDialogBuilder staticValueDialog;
+    private DefaultValueTypeDialogBuilder sessionAttributeDialog;
+    private DefaultValueTypeDialogBuilder scriptDialog;
+    private DefaultValueTypeDialogBuilder dynamicValueDialog;
 
 
     private EditDataContextDelegate dataContextDelegate;
@@ -90,13 +90,13 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     protected void onInit(InitEvent event) {
 
 
-        staticValueDialog = new StaticValueDialog(
+        staticValueDialog = new StaticValueDialogBuilder(
                 metadata,
                 messageBundle,
                 entityDialogs
         );
 
-        dynamicValueDialog = new DynamicValueDialog(
+        dynamicValueDialog = new DynamicValueDialogBuilder(
                 dialogs,
                 messageBundle,
                 uiComponents,
@@ -104,7 +104,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                 dynamicValueProviders
         );
 
-        sessionAttributeDialog = new SessionAttributeDialog(
+        sessionAttributeDialog = new SessionAttributeDialogBuilder(
                 dialogs,
                 messageBundle,
                 uiComponents,
@@ -112,7 +112,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                 sessionAttributeService
         );
 
-        scriptDialog = new ScriptDialog(
+        scriptDialog = new ScriptDialogBuilder(
                 messageBundle,
                 uiComponents,
                 dialogs
@@ -152,34 +152,34 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     }
 
     private void staticDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        staticValueDialog.openDialog(
+        staticValueDialog.createDialog(
                 entityAttributeDefaultValue,
                 this,
                 this::resetEmptyDefaultValues
-        );
+        ).show();
     }
     private void dynamicDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        dynamicValueDialog.openDialog(
+        dynamicValueDialog.createDialog(
                 entityAttributeDefaultValue,
                 this,
                 this::resetEmptyDefaultValues
-        );
+        ).show();
     }
 
     private void sessionAttributeDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        sessionAttributeDialog.openDialog(
+        sessionAttributeDialog.createDialog(
                 entityAttributeDefaultValue,
                 this,
                 this::resetEmptyDefaultValues
-        );
+        ).show();
     }
 
     private void scriptDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        scriptDialog.openDialog(
+        scriptDialog.createDialog(
                 entityAttributeDefaultValue,
                 this,
                 this::resetEmptyDefaultValues
-        );
+        ).show();
     }
 
     private void resetEmptyDefaultValues() {

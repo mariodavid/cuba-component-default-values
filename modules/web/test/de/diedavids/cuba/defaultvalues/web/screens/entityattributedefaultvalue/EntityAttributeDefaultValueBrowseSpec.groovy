@@ -1,37 +1,15 @@
 package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue
 
-import com.haulmont.cuba.core.global.AppBeans
-import com.haulmont.cuba.core.global.Metadata
-import com.haulmont.cuba.gui.Screens
+
 import com.haulmont.cuba.gui.components.Table
 import com.haulmont.cuba.gui.model.CollectionContainer
-import com.haulmont.cuba.gui.screen.Screen
-import com.haulmont.cuba.gui.screen.UiControllerUtils
-import com.haulmont.cuba.web.testsupport.TestUiEnvironment
-import de.diedavids.cuba.defaultvalues.DefaultValuesWebTestContainer
+import de.diedavids.cuba.defaultvalues.web.WebIntegrationSpec
 import de.diedavids.cuba.metadataextensions.entity.MetaClassEntity
-import org.junit.ClassRule
-import spock.lang.Shared
-import spock.lang.Specification
 
-class EntityAttributeDefaultValueBrowseSpec extends Specification {
+class EntityAttributeDefaultValueBrowseSpec extends WebIntegrationSpec {
 
-    @Shared
-    @ClassRule
-    TestUiEnvironment environment =
-            new TestUiEnvironment(DefaultValuesWebTestContainer.Common.INSTANCE)
-                    .withScreenPackages(
-                            "com.haulmont.cuba.web.app.main",
-                            "com.haulmont.cuba.gui.app.core.inputdialog",
-                            "de.diedavids.cuba.metadataextensions",
-                            "de.diedavids.cuba.defaultvalues"
-                    )
-                    .withUserLogin("admin")
-
-    Metadata metadata
-
-    void setup() {
-        metadata = AppBeans.get(Metadata.class);
+    def setup() {
+        mainWindow()
     }
 
     def "all persistent MetaClasses are loaded in the collection data container"() {
@@ -75,14 +53,6 @@ class EntityAttributeDefaultValueBrowseSpec extends Specification {
 
     private Table<MetaClassEntity> metaClassEntityTable(EntityAttributeDefaultValueBrowse sut) {
         (Table<MetaClassEntity>) sut.window.getComponent("metaClassEntitiesTable")
-    }
-
-    private CollectionContainer collectionContainer(Screen screen, String collectionContainerId) {
-        UiControllerUtils.getScreenData(screen).getContainer(collectionContainerId)
-    }
-
-    private Screens screens() {
-        environment.getScreens()
     }
 
 }

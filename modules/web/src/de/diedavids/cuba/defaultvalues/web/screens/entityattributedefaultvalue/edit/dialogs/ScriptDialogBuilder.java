@@ -16,13 +16,13 @@ import java.util.function.Consumer;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
 
-public class ScriptDialog implements DefaultValueTypeDialog {
+public class ScriptDialogBuilder implements DefaultValueTypeDialogBuilder {
 
     private final MessageBundle messageBundle;
     private final UiComponents uiComponents;
     private final Dialogs dialogs;
 
-    public ScriptDialog(
+    public ScriptDialogBuilder(
             MessageBundle messageBundle,
             UiComponents uiComponents,
             Dialogs dialogs
@@ -33,12 +33,8 @@ public class ScriptDialog implements DefaultValueTypeDialog {
     }
 
     @Override
-    public void openDialog(
-            EntityAttributeDefaultValue entityAttributeDefaultValue,
-            FrameOwner frameOwner,
-            Runnable afterCancelHandler
-    ) {
-        dialogs.createInputDialog(frameOwner)
+    public InputDialog createDialog(EntityAttributeDefaultValue entityAttributeDefaultValue, FrameOwner frameOwner, Runnable afterCancelHandler) {
+        return dialogs.createInputDialog(frameOwner)
                 .withCaption(
                         messageBundle.getMessage("setScriptDefaultValue")
                 )
@@ -59,8 +55,8 @@ public class ScriptDialog implements DefaultValueTypeDialog {
                             afterCancelHandler.run();
                         }
                     }
-                })
-                .show();
+                }).build();
+
     }
 
     private void setScriptAttributeDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue, String scriptValue) {

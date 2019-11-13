@@ -1,7 +1,6 @@
 package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs;
 
 
-import com.haulmont.cuba.core.global.MessageTools;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.UiComponents;
@@ -13,7 +12,6 @@ import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.MessageBundle;
 import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProviders;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
-import de.diedavids.cuba.defaultvalues.service.SessionAttributeService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +20,7 @@ import java.util.function.Consumer;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
 
-public class DynamicValueDialog implements DefaultValueTypeDialog {
+public class DynamicValueDialogBuilder implements DefaultValueTypeDialogBuilder {
 
 
     private final Dialogs dialogs;
@@ -31,7 +29,7 @@ public class DynamicValueDialog implements DefaultValueTypeDialog {
     private final Messages messages;
     private final DynamicValueProviders dynamicValueProviders;
 
-    public DynamicValueDialog(
+    public DynamicValueDialogBuilder(
             Dialogs dialogs,
             MessageBundle messageBundle,
             UiComponents uiComponents,
@@ -47,13 +45,8 @@ public class DynamicValueDialog implements DefaultValueTypeDialog {
     }
 
     @Override
-    public void openDialog(
-            EntityAttributeDefaultValue entityAttributeDefaultValue,
-            FrameOwner frameOwner,
-            Runnable afterCancelHandler
-    ) {
-
-        dialogs.createInputDialog(frameOwner)
+    public InputDialog createDialog(EntityAttributeDefaultValue entityAttributeDefaultValue, FrameOwner frameOwner, Runnable afterCancelHandler) {
+        return dialogs.createInputDialog(frameOwner)
                 .withCaption(messageBundle.getMessage("dynamicDefaultValueCaption"))
                 .withParameter(
                         InputParameter.parameter(
@@ -78,8 +71,7 @@ public class DynamicValueDialog implements DefaultValueTypeDialog {
                             );
                         }
                     }
-                })
-                .show();
+                }).build();
     }
 
     private Map<String, String> dynamicDefaultValueOptions(EntityAttributeDefaultValue entityAttributeDefaultValue) {

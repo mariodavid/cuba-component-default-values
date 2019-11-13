@@ -31,20 +31,12 @@ public class EntityAttributeDefaultValueBrowse extends Screen {
     protected Metadata metadata;
     @Inject
     protected ScreenBuilders screenBuilders;
+
     @Inject
     protected Table<MetaClassEntity> metaClassEntitiesTable;
     @Inject
-    protected Notifications notifications;
-
-    @Inject
     protected CollectionContainer<MetaClassEntity> metaClassEntitiesDc;
 
-    @Subscribe
-    protected void onAfterShow(AfterShowEvent event) {
-        notifications.create(Notifications.NotificationType.TRAY)
-                .withCaption("helll")
-                .show();
-    }
 
 
 

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
 
-public class SessionAttributeDialog implements DefaultValueTypeDialog {
+public class SessionAttributeDialogBuilder implements DefaultValueTypeDialogBuilder {
 
 
     private final Dialogs dialogs;
@@ -28,7 +28,7 @@ public class SessionAttributeDialog implements DefaultValueTypeDialog {
     private final MessageTools messageTools;
     private final SessionAttributeService sessionAttributeService;
 
-    public SessionAttributeDialog(
+    public SessionAttributeDialogBuilder(
             Dialogs dialogs,
             MessageBundle messageBundle,
             UiComponents uiComponents,
@@ -44,14 +44,8 @@ public class SessionAttributeDialog implements DefaultValueTypeDialog {
     }
 
     @Override
-    public void openDialog(
-            EntityAttributeDefaultValue entityAttributeDefaultValue,
-            FrameOwner frameOwner,
-            Runnable afterCancelHandler
-    ) {
-
-
-        dialogs.createInputDialog(frameOwner)
+    public InputDialog createDialog(EntityAttributeDefaultValue entityAttributeDefaultValue, FrameOwner frameOwner, Runnable afterCancelHandler) {
+        return dialogs.createInputDialog(frameOwner)
                 .withCaption(
                         messageBundle.getMessage("setSessionValueCaption")
                 )
@@ -71,8 +65,7 @@ public class SessionAttributeDialog implements DefaultValueTypeDialog {
                             afterCancelHandler.run();
                         }
                     }
-                })
-                .show();
+                }).build();
     }
 
     private Field sessionAttributeLookupField(EntityAttributeDefaultValue entityAttributeDefaultValue) {

@@ -18,13 +18,13 @@ import java.util.function.Consumer;
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
 import static de.diedavids.cuba.metadataextensions.EntityAttributeInputParameter.entityAttributeParameter;
 
-public class StaticValueDialog implements DefaultValueTypeDialog {
+public class StaticValueDialogBuilder implements DefaultValueTypeDialogBuilder {
 
     private final Metadata metadata;
     private final MessageBundle messageBundle;
     private final EntityDialogs entityDialogs;
 
-    public StaticValueDialog(
+    public StaticValueDialogBuilder(
             Metadata metadata,
             MessageBundle messageBundle,
             EntityDialogs entityDialogs
@@ -36,16 +36,12 @@ public class StaticValueDialog implements DefaultValueTypeDialog {
     }
 
     @Override
-    public void openDialog(
-            EntityAttributeDefaultValue entityAttributeDefaultValue,
-            FrameOwner frameOwner,
-            Runnable afterCancelHandler
-    ) {
+    public InputDialog createDialog(EntityAttributeDefaultValue entityAttributeDefaultValue, FrameOwner frameOwner, Runnable afterCancelHandler) {
         Class<Entity> entityClass = entityAttributeDefaultValue.getEntity().getJavaClass();
 
         Entity entity = metadata.create(entityClass);
 
-        entityDialogs.createEntityInputDialog(frameOwner, entityClass)
+        return entityDialogs.createEntityInputDialog(frameOwner, entityClass)
                 .withEntity(entity)
                 .withCaption(messageBundle.getMessage("staticDefaultValueCaption"))
                 .withParameter(
@@ -62,15 +58,12 @@ public class StaticValueDialog implements DefaultValueTypeDialog {
                             afterCancelHandler.run();
                         }
                     }
-                })
-                .show();
+                }).build();
     }
 
     private void setStaticDefaultValue(Entity entity, EntityAttributeDefaultValue entityAttributeDefaultValue) {
 
-        // MetaProperty property = getEntityMetaClass().getProperty(entityAttributeDefaultValue.getEntityAttribute().getCode());
         Object defaultValue = entity.getValue(entityAttributeDefaultValue.getEntityAttribute().getName());
-        //Datatype datatype = determineEntityAttributeDatatype(property);
         Datatype datatype = determineEntityAttributeDatatype(entityAttributeDefaultValue.getEntityAttribute());
         String formattedValue = datatype.format(defaultValue);
         entityAttributeDefaultValue.setValue(formattedValue);
