@@ -1,10 +1,9 @@
 package de.diedavids.cuba.defaultvalues.core.metadatawithdefaultvalues
 
+
 import com.haulmont.cuba.security.entity.User
 import de.diedavids.cuba.defaultvalues.core.DefaultValuesIntegrationSpec
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType
-import de.diedavids.cuba.defaultvalues.entity.example.mlb.MlbTeam
-import de.diedavids.cuba.defaultvalues.entity.example.mlb.State
 
 class SessionAttributesIntegrationSpec extends DefaultValuesIntegrationSpec {
 
@@ -30,7 +29,8 @@ class SessionAttributesIntegrationSpec extends DefaultValuesIntegrationSpec {
         sut.email == "bart@simpsons.com"
     }
 
-    void "when the session attribute is missing in the session nothing is assigneds"() {
+
+    void "when the session attribute is missing in the session nothing is assigned"() {
 
         given:
         userSessionSource

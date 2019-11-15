@@ -32,7 +32,6 @@ import javax.inject.Inject;
 import java.util.function.Consumer;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
-import static de.diedavids.cuba.metadataextensions.EntityAttributeInputParameter.entityAttributeParameter;
 
 @UiController("ddcdv_EntityAttributeDefaultValue.edit")
 @UiDescriptor("entity-attribute-default-value-edit.xml")
@@ -119,7 +118,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
         );
     }
 
-    
+
     @Subscribe
     protected void onBeforeShow(BeforeShowEvent event) {
         MetaClass entityMetaClass = metadata.getClass(getEditedEntity().getName());
@@ -158,6 +157,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                 this::resetEmptyDefaultValues
         ).show();
     }
+
     private void dynamicDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
         dynamicValueDialog.createDialog(
                 entityAttributeDefaultValue,
@@ -208,21 +208,12 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
         if (entityAttributeDefaultValue == null || entityAttributeDefaultValue.getType() == null) {
             dialogs.createInputDialog(this)
                     .withCaption(messageBundle.getMessage("selectDefaultValueTypeCaption"))
+                    .withWidth("300px")
                     .withParameter(
                             InputParameter.parameter(
                                     "entityAttributeDefaultValueType"
                             )
-                                    .withField(() -> {
-                                        RadioButtonGroup radioButtonGroup = uiComponents.create(RadioButtonGroup.class);
-                                        radioButtonGroup.setWidthFull();
-                                        radioButtonGroup.setRequired(true);
-                                        radioButtonGroup.setOrientation(HasOrientation.Orientation.VERTICAL);
-                                        radioButtonGroup.setOptionsEnum(EntityAttributeDefaultValueType.class);
-                                        radioButtonGroup.setValue(EntityAttributeDefaultValueType.STATIC_VALUE);
-
-
-                                        return radioButtonGroup;
-                                    })
+                                    .withField(() -> defaultValueTypeField(entityAttributeDefaultValue))
                     )
                     .withCloseListener(new Consumer<InputDialog.InputDialogCloseEvent>() {
                         @Override
@@ -239,6 +230,42 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
         } else {
             entityAttributeDefaultValueDialog(entityAttributeDefaultValue);
         }
+    }
+
+    private Field defaultValueTypeField(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        RadioButtonGroup radioButtonGroup = uiComponents.create(RadioButtonGroup.class);
+        radioButtonGroup.setWidthFull();
+        radioButtonGroup.setRequired(true);
+        radioButtonGroup.setOrientation(HasOrientation.Orientation.VERTICAL);
+        radioButtonGroup.setOptionsEnum(EntityAttributeDefaultValueType.class);
+        radioButtonGroup.setValue(EntityAttributeDefaultValueType.STATIC_VALUE);
+        radioButtonGroup.setContextHelpText(messageBundle.getMessage("selectDefaultValueTypeHelp"));
+        radioButtonGroup.setContextHelpTextHtmlEnabled(true);
+
+        configureOptionEnableProvider(entityAttributeDefaultValue, radioButtonGroup);
+
+        return radioButtonGroup;
+    }
+
+    private void configureOptionEnableProvider(EntityAttributeDefaultValue entityAttributeDefaultValue, RadioButtonGroup radioButtonGroup) {
+        com.vaadin.ui.RadioButtonGroup unwrap = radioButtonGroup.unwrap(com.vaadin.ui.RadioButtonGroup.class);
+
+        unwrap.setItemEnabledProvider(o -> {
+            EntityAttributeDefaultValueType type = (EntityAttributeDefaultValueType) o;
+
+            if (
+                    type.equals(EntityAttributeDefaultValueType.DYNAMIC_VALUE) &&
+                            noDynamicValueProvidersAvailable(entityAttributeDefaultValue)
+            ) {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    private boolean noDynamicValueProvidersAvailable(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        return dynamicValueProviders.getProvidersFor(entityAttributeDefaultValue.getEntityAttribute()).size() == 0;
     }
 
     private void entityAttributeDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {

@@ -1,7 +1,9 @@
 package de.diedavids.cuba.defaultvalues.service;
 
+import com.haulmont.chile.core.datatypes.DatatypeRegistry;
 import com.haulmont.cuba.core.global.DataManager;
 import com.haulmont.cuba.security.entity.SessionAttribute;
+import de.diedavids.cuba.defaultvalues.EntityAttributeDatatypes;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -14,6 +16,12 @@ public class SessionAttributeServiceBean implements SessionAttributeService {
     @Inject
     protected DataManager dataManager;
 
+    @Inject
+    protected DatatypeRegistry datatypeRegistry;
+
+    @Inject
+    protected EntityAttributeDatatypes entityAttributeDatatypes;
+
     @Override
     public List<String> getAvailableSessionAttributes() {
         return dataManager.load(SessionAttribute.class)
@@ -23,5 +31,4 @@ public class SessionAttributeServiceBean implements SessionAttributeService {
                 .distinct()
                 .collect(Collectors.toList());
     }
-
 }

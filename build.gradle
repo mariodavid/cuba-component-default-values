@@ -1,4 +1,3 @@
-
 buildscript {
     ext.cubaVersion = '7.1.1'
     repositories {

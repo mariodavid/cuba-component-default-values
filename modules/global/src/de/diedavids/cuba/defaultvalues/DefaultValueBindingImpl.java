@@ -10,7 +10,6 @@ import com.haulmont.cuba.core.global.Scripting;
 import com.haulmont.cuba.core.global.UserSessionSource;
 import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProvider;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
-import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
 import groovy.lang.Binding;
 import org.codehaus.groovy.runtime.GStringImpl;
 import org.slf4j.Logger;
@@ -42,6 +41,9 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
     @Inject
     protected List<DynamicValueProvider> dynamicValueProviders;
 
+    @Inject
+    protected EntityAttributeDatatypes entityAttributeDatatypes;
+
     @Override
     public <T extends Entity> T bindDefaultValues(Class<T> entityClass, T entityInstance) {
 
@@ -50,8 +52,8 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
         List<EntityAttributeDefaultValue> entityAttributeDefaultValueList = getDefaultConfigurations(metaClass);
 
         entityAttributeDefaultValueList
-                .forEach(defaultValueConfiguration ->
-                        bindDefaultValue(entityInstance, metaClass, defaultValueConfiguration)
+                .forEach(entityAttributeDefaultValue ->
+                        bindDefaultValue(entityInstance, entityAttributeDefaultValue)
                 );
 
         return entityInstance;
@@ -65,63 +67,26 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
                 .list();
     }
 
-    private <T extends Entity> void bindDefaultValue(T entityInstance, MetaClass metaClass, EntityAttributeDefaultValue entityAttributeDefaultValue) {
+    private <T extends Entity> void bindDefaultValue(T entityInstance, EntityAttributeDefaultValue entityAttributeDefaultValue) {
         MetaProperty property = entityAttributeDefaultValue.getEntityAttribute();
 
-        if (property.getRange().isDatatype()) {
-            bindDatatypeDefaultValue(
-                    entityInstance,
-                    entityAttributeDefaultValue,
-                    property,
-                    property.getRange().asDatatype()
-            );
-        } else if (property.getRange().isEnum()) {
-            bindDatatypeDefaultValue(
-                    entityInstance,
-                    entityAttributeDefaultValue,
-                    property,
-                    property.getRange().asEnumeration()
-            );
-        } else if (property.getRange().isClass()) {
-            bindEntityDefaultValue(
-                    entityInstance,
-                    entityAttributeDefaultValue,
-                    property
-            );
-        }
+        bindDefaultValue(
+                entityInstance,
+                entityAttributeDefaultValue,
+                property,
+                entityAttributeDatatypes.getEntityAttributeDatatype(property)
+        );
 
     }
 
-    private <T extends Entity> void bindDatatypeDefaultValue(
+    private <T extends Entity> void bindDefaultValue(
             T entityInstance,
             EntityAttributeDefaultValue entityAttributeDefaultValue,
             MetaProperty entityAttribute,
             Datatype<Object> datatype
     ) {
 
-
-        Object configuredDefaultValue = getConfiguredDefaultValue(entityAttributeDefaultValue, datatype);
         try {
-            entityInstance.setValue(entityAttribute.getName(), configuredDefaultValue);
-        }
-        catch (ClassCastException e) {
-            log.error("Returned value from Script evaluation cannot be assigned to attribute. Error message: {}",
-                    e.getMessage()
-            );
-            log.debug("Error details:", e);
-        }
-
-    }
-
-
-    private <T extends Entity> void bindEntityDefaultValue(
-            T entityInstance,
-            EntityAttributeDefaultValue entityAttributeDefaultValue,
-            MetaProperty entityAttribute
-    ) {
-
-        try {
-            Datatype datatype = new EntitySoftReferenceDatatype();
             Object result = getConfiguredDefaultValue(entityAttributeDefaultValue, datatype);
             entityInstance.setValue(entityAttribute.getName(), result);
         }
@@ -131,6 +96,7 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
             );
             log.debug("Error details:", e);
         }
+
     }
 
     private Object getConfiguredDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue, Datatype<Object> datatype) {
@@ -225,7 +191,8 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
         try {
             return datatype.parse(defaultValue);
         } catch (ParseException e) {
-            e.printStackTrace();
+            log.error("Unable to parse default value: {} with datatype: {}. Error message: {}", defaultValue, datatype, e.getMessage());
+            log.info("Error details:", e);
         }
         return false;
     }

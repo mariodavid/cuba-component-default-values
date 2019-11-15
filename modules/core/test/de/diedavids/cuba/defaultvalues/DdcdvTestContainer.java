@@ -16,6 +16,7 @@ public class DdcdvTestContainer extends TestContainer {
         appComponents = new ArrayList<>(Arrays.asList(
                 "com.haulmont.cuba",
                 // add CUBA premium add-ons here
+                "de.diedavids.cuba.entitysoftreference",
                 "de.diedavids.cuba.metadataextensions"
                 // "com.haulmont.charts",
                 // "com.haulmont.fts",
@@ -27,6 +28,7 @@ public class DdcdvTestContainer extends TestContainer {
                 // in appPropertiesConfig context parameter of the core module
                 "de/diedavids/cuba/defaultvalues/app.properties",
                 "de/diedavids/cuba/metadataextensions/app.properties",
+                "de/diedavids/cuba/entitysoftreference/app.properties",
                 // Add this file which is located in CUBA and defines some properties
                 // specifically for test environment. You can replace it with your own
                 // or add another one in the end.
