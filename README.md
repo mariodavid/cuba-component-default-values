@@ -6,6 +6,10 @@
 
 This application component lets you configure default values for entities at runtime.
 
+
+![Customer Editor with default values](https://github.com/mariodavid/cuba-component-default-values/blob/master/img/6-customer-edit.png)
+
+
 Table of Contents
 =================
 
@@ -51,4 +55,12 @@ The Changelog also contains information about breaking changes and tips on how t
 ### Example usage
 To see this application component in action, check out this example: [cuba-example-using-default-values](https://github.com/mariodavid/cuba-example-using-default-values).
 
+### Default Value Entity Browse
+![Default Value Entity Browse](/img/1-default-value-entity-browse.png)
+
+### Entity Default Value Details
+![Customer Editor with default values](https://github.com/mariodavid/cuba-component-default-values/blob/master/img/2-default-value-entity-edit.png)
+![Customer Editor with default values](https://github.com/mariodavid/cuba-component-default-values/blob/master/img/6-customer-edit.png)
+![Customer Editor with default values](https://github.com/mariodavid/cuba-component-default-values/blob/master/img/6-customer-edit.png)
+![Customer Editor with default values](https://github.com/mariodavid/cuba-component-default-values/blob/master/img/6-customer-edit.png)
 
