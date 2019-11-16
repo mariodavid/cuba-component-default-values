@@ -48,7 +48,6 @@ Information on changes that happen through the different versions of the applica
 The Changelog also contains information about breaking changes and tips on how to resolve them.
 
 
-
 ## Using the application component
 
 
