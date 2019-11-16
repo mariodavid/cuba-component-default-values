@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
 
-public class SessionAttributeDialogBuilder implements DefaultValueTypeDialogBuilder {
+public class SessionAttributeDialogBuilder implements DefaultValueTypeDialogBuilder<String> {
 
 
     private final Dialogs dialogs;
@@ -44,7 +44,12 @@ public class SessionAttributeDialogBuilder implements DefaultValueTypeDialogBuil
     }
 
     @Override
-    public InputDialog createDialog(EntityAttributeDefaultValue entityAttributeDefaultValue, FrameOwner frameOwner, Runnable afterCancelHandler) {
+    public InputDialog createDialog(
+            EntityAttributeDefaultValue entityAttributeDefaultValue,
+            FrameOwner frameOwner,
+            Consumer<String> afterOkHandler,
+            Runnable afterCancelHandler
+    ) {
         return dialogs.createInputDialog(frameOwner)
                 .withCaption(
                         messageBundle.getMessage("setSessionValueCaption")
@@ -57,10 +62,12 @@ public class SessionAttributeDialogBuilder implements DefaultValueTypeDialogBuil
                     @Override
                     public void accept(InputDialog.InputDialogCloseEvent closeEvent) {
                         if (closeEvent.getCloseAction().equals(INPUT_DIALOG_OK_ACTION)) {
+                            String selectedValue = closeEvent.getValue("sessionAttribute");
                             setSessionAttributeDefaultValue(
                                     entityAttributeDefaultValue,
-                                    closeEvent.getValue("sessionAttribute")
+                                    selectedValue
                             );
+                            afterOkHandler.accept(selectedValue);
                         } else {
                             afterCancelHandler.run();
                         }

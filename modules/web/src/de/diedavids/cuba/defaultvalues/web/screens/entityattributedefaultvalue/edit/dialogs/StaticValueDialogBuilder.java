@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
 import static de.diedavids.cuba.metadataextensions.EntityAttributeInputParameter.entityAttributeParameter;
 
-public class StaticValueDialogBuilder implements DefaultValueTypeDialogBuilder {
+public class StaticValueDialogBuilder implements DefaultValueTypeDialogBuilder<Object> {
 
     private final Metadata metadata;
     private final MessageBundle messageBundle;
@@ -36,7 +36,12 @@ public class StaticValueDialogBuilder implements DefaultValueTypeDialogBuilder {
     }
 
     @Override
-    public InputDialog createDialog(EntityAttributeDefaultValue entityAttributeDefaultValue, FrameOwner frameOwner, Runnable afterCancelHandler) {
+    public InputDialog createDialog(
+            EntityAttributeDefaultValue entityAttributeDefaultValue,
+            FrameOwner frameOwner,
+            Consumer<Object> afterOkHandler,
+            Runnable afterCancelHandler
+    ) {
         Class<Entity> entityClass = entityAttributeDefaultValue.getEntity().getJavaClass();
 
         Entity entity = metadata.create(entityClass);
@@ -45,7 +50,7 @@ public class StaticValueDialogBuilder implements DefaultValueTypeDialogBuilder {
                 .withEntity(entity)
                 .withCaption(messageBundle.getMessage("staticDefaultValueCaption"))
                 .withParameter(
-                        entityAttributeParameter(entityClass, entityAttributeDefaultValue.getEntityAttribute().getName())
+                        entityAttributeParameter(entityClass, entityAttributeName(entityAttributeDefaultValue))
                                 .withRequired(true)
                                 .withAutoBinding(true)
                 )
@@ -54,6 +59,7 @@ public class StaticValueDialogBuilder implements DefaultValueTypeDialogBuilder {
                     public void accept(InputDialog.InputDialogCloseEvent closeEvent) {
                         if (closeEvent.getCloseAction().equals(INPUT_DIALOG_OK_ACTION)) {
                             setStaticDefaultValue(entity, entityAttributeDefaultValue);
+                            afterOkHandler.accept(closeEvent.getValue(entityAttributeName(entityAttributeDefaultValue)));
                         } else {
                             afterCancelHandler.run();
                         }
@@ -61,9 +67,13 @@ public class StaticValueDialogBuilder implements DefaultValueTypeDialogBuilder {
                 }).build();
     }
 
+    private String entityAttributeName(EntityAttributeDefaultValue entityAttributeDefaultValue) {
+        return entityAttributeDefaultValue.getEntityAttribute().getName();
+    }
+
     private void setStaticDefaultValue(Entity entity, EntityAttributeDefaultValue entityAttributeDefaultValue) {
 
-        Object defaultValue = entity.getValue(entityAttributeDefaultValue.getEntityAttribute().getName());
+        Object defaultValue = entity.getValue(entityAttributeName(entityAttributeDefaultValue));
         Datatype datatype = determineEntityAttributeDatatype(entityAttributeDefaultValue.getEntityAttribute());
         String formattedValue = datatype.format(defaultValue);
         entityAttributeDefaultValue.setValue(formattedValue);

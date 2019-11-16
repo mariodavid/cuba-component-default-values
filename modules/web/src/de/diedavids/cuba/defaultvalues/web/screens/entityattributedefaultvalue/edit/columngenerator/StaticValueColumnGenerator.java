@@ -1,15 +1,15 @@
 package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.columngenerator;
 
 
-import com.google.common.base.Strings;
 import com.haulmont.chile.core.datatypes.Datatype;
-import com.haulmont.chile.core.model.MetaClass;
+import com.haulmont.chile.core.datatypes.DatatypeRegistry;
 import com.haulmont.chile.core.model.MetaProperty;
 import com.haulmont.chile.core.model.Range;
 import com.haulmont.cuba.core.entity.Entity;
-import com.haulmont.cuba.core.global.*;
+import com.haulmont.cuba.core.global.Messages;
+import com.haulmont.cuba.core.global.Metadata;
+import de.diedavids.cuba.defaultvalues.EntityAttributeDatatypes;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
-import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
 
 import java.text.ParseException;
 
@@ -17,15 +17,21 @@ public class StaticValueColumnGenerator implements DefaultValueTypeColumnGenerat
 
     private final Metadata metadata;
     private final Messages messages;
-    private final EntityLoadInfoBuilder entityLoadInfoBuilder;
-    private final DataManager dataManager;
+    private final EntityAttributeDatatypes entityAttributeDatatypes;
+    private final DatatypeRegistry datatypeRegistry;
 
-    public StaticValueColumnGenerator(Metadata metadata, Messages messages, EntityLoadInfoBuilder entityLoadInfoBuilder, DataManager dataManager) {
+
+    public StaticValueColumnGenerator(
+            Metadata metadata,
+            Messages messages,
+            EntityAttributeDatatypes entityAttributeDatatypes,
+            DatatypeRegistry datatypeRegistry
+    ) {
 
         this.metadata = metadata;
         this.messages = messages;
-        this.entityLoadInfoBuilder = entityLoadInfoBuilder;
-        this.dataManager = dataManager;
+        this.entityAttributeDatatypes = entityAttributeDatatypes;
+        this.datatypeRegistry = datatypeRegistry;
     }
 
     @Override
@@ -47,7 +53,13 @@ public class StaticValueColumnGenerator implements DefaultValueTypeColumnGenerat
             try {
                 Datatype datatype = determineEntityAttributeDatatype(entityAttributeDefaultValue.getEntityAttribute());
                 Object defaultValue = datatype.parse(entityAttributeDefaultValue.getValue());
-                return messages.getMessage((Enum) defaultValue);
+
+                if (defaultValue != null)  {
+                    return messages.getMessage((Enum) defaultValue);
+                }
+                else {
+                    return null;
+                }
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -60,49 +72,20 @@ public class StaticValueColumnGenerator implements DefaultValueTypeColumnGenerat
     }
 
 
-    public Entity convertToEntityAttribute(String value) {
+    private Entity convertToEntityAttribute(String value) {
 
-
-        if (Strings.isNullOrEmpty(value))
-            return null;
-
-        EntityLoadInfo entityLoadInfo = entityLoadInfoBuilder.parse(value);
-
-        Entity entity = null;
-
-        if (entityLoadInfo != null) {
-            entity = loadEntity(entityLoadInfo);
+        try {
+            return (Entity) datatypeRegistry.get("EntitySoftReference").parse(value);
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
 
-        return entity;
+        return null;
     }
 
-    private Entity loadEntity(EntityLoadInfo entityLoadInfo) {
-        return dataManager.load(
-                getLoadContextForForEntityLoadInfo(
-                        entityLoadInfo.getMetaClass(),
-                        entityLoadInfo.getId()
-                )
-        );
-    }
-
-    protected LoadContext getLoadContextForForEntityLoadInfo(MetaClass metaClass, Object entityId) {
-        LoadContext loadContext = LoadContext.create(metaClass.getJavaClass());
-        loadContext
-                .setId(entityId);
-        return loadContext;
-    }
 
     private Datatype determineEntityAttributeDatatype(MetaProperty metaProperty) {
-        if (metaProperty.getRange().isDatatype()) {
-            return metaProperty.getRange().asDatatype();
-        } else if (metaProperty.getRange().isEnum()) {
-            return metaProperty.getRange().asEnumeration();
-        } else if (metaProperty.getRange().isClass()) {
-            return new EntitySoftReferenceDatatype();
-        } else {
-            return null;
-        }
+        return entityAttributeDatatypes.getEntityAttributeDatatype(metaProperty);
     }
 
 

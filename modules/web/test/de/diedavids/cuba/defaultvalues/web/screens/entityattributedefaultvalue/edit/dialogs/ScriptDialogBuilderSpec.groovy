@@ -8,6 +8,8 @@ import com.haulmont.cuba.security.entity.User
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue
 import de.diedavids.cuba.defaultvalues.web.WebIntegrationSpec
 
+import java.util.function.Consumer
+
 class ScriptDialogBuilderSpec extends WebIntegrationSpec {
 
     ScriptDialogBuilder sut
@@ -32,7 +34,8 @@ class ScriptDialogBuilderSpec extends WebIntegrationSpec {
         InputDialog inputDialog = sut.createDialog(
                 entityAttributeDefaultValue,
                 mainWindow(),
-                {} as Runnable
+                {},
+                {}
         )
 
         and:
@@ -55,7 +58,8 @@ class ScriptDialogBuilderSpec extends WebIntegrationSpec {
         InputDialog inputDialog = sut.createDialog(
                 entityAttributeDefaultValue,
                 mainWindow(),
-                {} as Runnable
+                {},
+                {}
         )
 
         inputDialog.show()
@@ -77,6 +81,7 @@ class ScriptDialogBuilderSpec extends WebIntegrationSpec {
         InputDialog inputDialog = sut.createDialog(
                 entityAttributeDefaultValue,
                 mainWindow(),
+                {},
                 new Runnable() {
                     @Override
                     void run() {

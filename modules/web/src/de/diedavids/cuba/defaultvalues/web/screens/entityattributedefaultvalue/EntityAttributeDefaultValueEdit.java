@@ -1,21 +1,27 @@
 package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue;
 
+import com.haulmont.chile.core.datatypes.DatatypeRegistry;
 import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.chile.core.model.MetaProperty;
-import com.haulmont.cuba.core.global.*;
+import com.haulmont.cuba.core.global.EntityStates;
+import com.haulmont.cuba.core.global.MessageTools;
+import com.haulmont.cuba.core.global.Messages;
+import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.Notifications;
 import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog;
-import com.haulmont.cuba.gui.app.core.inputdialog.InputParameter;
-import com.haulmont.cuba.gui.components.*;
+import com.haulmont.cuba.gui.components.Action;
+import com.haulmont.cuba.gui.components.Component;
+import com.haulmont.cuba.gui.components.Label;
+import com.haulmont.cuba.gui.components.Table;
 import com.haulmont.cuba.gui.model.CollectionContainer;
 import com.haulmont.cuba.gui.model.CollectionLoader;
 import com.haulmont.cuba.gui.model.DataContext;
 import com.haulmont.cuba.gui.screen.*;
+import de.diedavids.cuba.defaultvalues.EntityAttributeDatatypes;
 import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProviders;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
-import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType;
 import de.diedavids.cuba.defaultvalues.service.SessionAttributeService;
 import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.EditDataContextDelegate;
 import de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.columngenerator.DynamicValueColumnGenerator;
@@ -29,9 +35,6 @@ import de.diedavids.cuba.metadataextensions.entity.MetaClassEntity;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
-import java.util.function.Consumer;
-
-import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
 
 @UiController("ddcdv_EntityAttributeDefaultValue.edit")
 @UiDescriptor("entity-attribute-default-value-edit.xml")
@@ -50,7 +53,6 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     protected EntityDialogs entityDialogs;
     @Inject
     protected DataContext dataContext;
-
     @Inject
     protected CollectionLoader<EntityAttributeDefaultValue> entityAttributeDefaultValueDl;
     @Inject
@@ -68,19 +70,19 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
     @Inject
     protected EntityStates entityStates;
     @Inject
-    protected DataManager dataManager;
-    @Inject
     protected Messages messages;
     @Inject
-    protected EntityLoadInfoBuilder entityLoadInfoBuilder;
-
-    @Inject
     protected DynamicValueProviders dynamicValueProviders;
+    @Inject
+    protected EntityAttributeDatatypes entityAttributeDatatypes;
+    @Inject
+    protected DatatypeRegistry datatypeRegistry;
 
     private DefaultValueTypeDialogBuilder staticValueDialog;
     private DefaultValueTypeDialogBuilder sessionAttributeDialog;
     private DefaultValueTypeDialogBuilder scriptDialog;
     private DefaultValueTypeDialogBuilder dynamicValueDialog;
+    private DefaultValueTypeDialogBuilder defaultValueTypeSelectorDialog;
 
 
     private EditDataContextDelegate dataContextDelegate;
@@ -115,6 +117,13 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                 messageBundle,
                 uiComponents,
                 dialogs
+        );
+
+        defaultValueTypeSelectorDialog = new new DefaultValueTypeSelectorDialogBuilder(
+                messageBundle,
+                dialogs,
+                uiComponents,
+                dynamicValueProviders
         );
     }
 
@@ -154,6 +163,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
         staticValueDialog.createDialog(
                 entityAttributeDefaultValue,
                 this,
+                this::defaultValueChangedMessage,
                 this::resetEmptyDefaultValues
         ).show();
     }
@@ -162,6 +172,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
         dynamicValueDialog.createDialog(
                 entityAttributeDefaultValue,
                 this,
+                this::defaultValueChangedMessage,
                 this::resetEmptyDefaultValues
         ).show();
     }
@@ -170,6 +181,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
         sessionAttributeDialog.createDialog(
                 entityAttributeDefaultValue,
                 this,
+                this::defaultValueChangedMessage,
                 this::resetEmptyDefaultValues
         ).show();
     }
@@ -178,8 +190,15 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
         scriptDialog.createDialog(
                 entityAttributeDefaultValue,
                 this,
+                this::defaultValueChangedMessage,
                 this::resetEmptyDefaultValues
         ).show();
+    }
+
+    private void defaultValueChangedMessage(Object o) {
+        notifications.create(Notifications.NotificationType.TRAY)
+                        .withCaption(messageBundle.getMessage("defaultValueSet"))
+                        .show();
     }
 
     private void resetEmptyDefaultValues() {
@@ -206,66 +225,19 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
         EntityAttributeDefaultValue entityAttributeDefaultValue = entityAttributeDefaultValuesTable.getSingleSelected();
 
         if (entityAttributeDefaultValue == null || entityAttributeDefaultValue.getType() == null) {
-            dialogs.createInputDialog(this)
-                    .withCaption(messageBundle.getMessage("selectDefaultValueTypeCaption"))
-                    .withWidth("300px")
-                    .withParameter(
-                            InputParameter.parameter(
-                                    "entityAttributeDefaultValueType"
-                            )
-                                    .withField(() -> defaultValueTypeField(entityAttributeDefaultValue))
-                    )
-                    .withCloseListener(new Consumer<InputDialog.InputDialogCloseEvent>() {
-                        @Override
-                        public void accept(InputDialog.InputDialogCloseEvent closeEvent) {
-                            if (closeEvent.getCloseAction().equals(INPUT_DIALOG_OK_ACTION)) {
-                                entityAttributeDefaultValue.setType(
-                                        closeEvent.getValue("entityAttributeDefaultValueType")
-                                );
-                                entityAttributeDefaultValueDialog(entityAttributeDefaultValue);
-                            }
-                        }
-                    })
-                    .show();
+            InputDialog defaultTypeSelectorDialog = defaultValueTypeSelectorDialog.createDialog(
+                    entityAttributeDefaultValue,
+                    this,
+                    entityAttributeDefaultValueType -> entityAttributeDefaultValueDialog(entityAttributeDefaultValue),
+                    () -> {
+                     /* noop */
+                    }
+            );
+
+            defaultTypeSelectorDialog.show();
         } else {
             entityAttributeDefaultValueDialog(entityAttributeDefaultValue);
         }
-    }
-
-    private Field defaultValueTypeField(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        RadioButtonGroup radioButtonGroup = uiComponents.create(RadioButtonGroup.class);
-        radioButtonGroup.setWidthFull();
-        radioButtonGroup.setRequired(true);
-        radioButtonGroup.setOrientation(HasOrientation.Orientation.VERTICAL);
-        radioButtonGroup.setOptionsEnum(EntityAttributeDefaultValueType.class);
-        radioButtonGroup.setValue(EntityAttributeDefaultValueType.STATIC_VALUE);
-        radioButtonGroup.setContextHelpText(messageBundle.getMessage("selectDefaultValueTypeHelp"));
-        radioButtonGroup.setContextHelpTextHtmlEnabled(true);
-
-        configureOptionEnableProvider(entityAttributeDefaultValue, radioButtonGroup);
-
-        return radioButtonGroup;
-    }
-
-    private void configureOptionEnableProvider(EntityAttributeDefaultValue entityAttributeDefaultValue, RadioButtonGroup radioButtonGroup) {
-        com.vaadin.ui.RadioButtonGroup unwrap = radioButtonGroup.unwrap(com.vaadin.ui.RadioButtonGroup.class);
-
-        unwrap.setItemEnabledProvider(o -> {
-            EntityAttributeDefaultValueType type = (EntityAttributeDefaultValueType) o;
-
-            if (
-                    type.equals(EntityAttributeDefaultValueType.DYNAMIC_VALUE) &&
-                            noDynamicValueProvidersAvailable(entityAttributeDefaultValue)
-            ) {
-                return false;
-            }
-
-            return true;
-        });
-    }
-
-    private boolean noDynamicValueProvidersAvailable(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        return dynamicValueProviders.getProvidersFor(entityAttributeDefaultValue.getEntityAttribute()).size() == 0;
     }
 
     private void entityAttributeDefaultValueDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
@@ -289,7 +261,6 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                     break;
             }
         }
-
     }
 
     @Install(to = "entityAttributeDefaultValuesTable.value", subject = "columnGenerator")
@@ -311,8 +282,8 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                     field.setValue(new StaticValueColumnGenerator(
                             metadata,
                             messages,
-                            entityLoadInfoBuilder,
-                            dataManager
+                            entityAttributeDatatypes,
+                            datatypeRegistry
                     ).getUiValue(entityAttributeDefaultValue));
                     break;
             }

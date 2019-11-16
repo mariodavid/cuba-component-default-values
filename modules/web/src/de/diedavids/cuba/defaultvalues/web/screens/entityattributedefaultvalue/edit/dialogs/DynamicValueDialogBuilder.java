@@ -12,6 +12,7 @@ import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.MessageBundle;
 import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProviders;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
+import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.function.Consumer;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
 
-public class DynamicValueDialogBuilder implements DefaultValueTypeDialogBuilder {
+public class DynamicValueDialogBuilder implements DefaultValueTypeDialogBuilder<String> {
 
 
     private final Dialogs dialogs;
@@ -45,7 +46,12 @@ public class DynamicValueDialogBuilder implements DefaultValueTypeDialogBuilder 
     }
 
     @Override
-    public InputDialog createDialog(EntityAttributeDefaultValue entityAttributeDefaultValue, FrameOwner frameOwner, Runnable afterCancelHandler) {
+    public InputDialog createDialog(
+            EntityAttributeDefaultValue entityAttributeDefaultValue,
+            FrameOwner frameOwner,
+            Consumer<String> afterOkHandler,
+            Runnable afterCancelHandler
+    ) {
         return dialogs.createInputDialog(frameOwner)
                 .withCaption(messageBundle.getMessage("dynamicDefaultValueCaption"))
                 .withParameter(
@@ -66,12 +72,20 @@ public class DynamicValueDialogBuilder implements DefaultValueTypeDialogBuilder 
                     @Override
                     public void accept(InputDialog.InputDialogCloseEvent closeEvent) {
                         if (closeEvent.getCloseAction().equals(INPUT_DIALOG_OK_ACTION)) {
-                            entityAttributeDefaultValue.setValue(
-                                    closeEvent.getValue("dynamicValueProvider")
-                            );
+                            String selectedValue = closeEvent.getValue("dynamicValueProvider");
+                            setDynamicValue(entityAttributeDefaultValue, selectedValue);
+                            afterOkHandler.accept(selectedValue);
+                        }
+                        else {
+                            afterCancelHandler.run();
                         }
                     }
                 }).build();
+    }
+
+    private void setDynamicValue(EntityAttributeDefaultValue entityAttributeDefaultValue, String defaultValue) {
+        entityAttributeDefaultValue.setValue(defaultValue);
+        entityAttributeDefaultValue.setType(EntityAttributeDefaultValueType.DYNAMIC_VALUE);
     }
 
     private Map<String, String> dynamicDefaultValueOptions(EntityAttributeDefaultValue entityAttributeDefaultValue) {
