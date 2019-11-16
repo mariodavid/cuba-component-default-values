@@ -119,7 +119,7 @@ public class EntityAttributeDefaultValueEdit extends StandardEditor<MetaClassEnt
                 dialogs
         );
 
-        defaultValueTypeSelectorDialog = new new DefaultValueTypeSelectorDialogBuilder(
+        defaultValueTypeSelectorDialog = new DefaultValueTypeSelectorDialogBuilder(
                 messageBundle,
                 dialogs,
                 uiComponents,
