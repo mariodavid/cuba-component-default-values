@@ -4,10 +4,7 @@ import com.haulmont.chile.core.datatypes.Datatype;
 import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.chile.core.model.MetaProperty;
 import com.haulmont.cuba.core.entity.Entity;
-import com.haulmont.cuba.core.global.DataManager;
-import com.haulmont.cuba.core.global.Metadata;
-import com.haulmont.cuba.core.global.Scripting;
-import com.haulmont.cuba.core.global.UserSessionSource;
+import com.haulmont.cuba.core.global.*;
 import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProvider;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import groovy.lang.Binding;
@@ -17,7 +14,9 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Component(DefaultValueBinding.NAME)
@@ -43,6 +42,12 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
 
     @Inject
     protected EntityAttributeDatatypes entityAttributeDatatypes;
+
+    @Inject
+    protected TimeSource timeSource;
+
+    @Inject
+    protected BeanLocator beanLocator;
 
     @Override
     public <T extends Entity> T bindDefaultValues(Class<T> entityClass, T entityInstance) {
@@ -155,7 +160,7 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
         try {
             Object result = scripting.evaluateGroovy(
                     entityAttributeDefaultValue.getValue(),
-                    new Binding()
+                    getScriptBinding()
             );
 
             if (result instanceof GStringImpl) {
@@ -187,6 +192,18 @@ public class DefaultValueBindingImpl implements DefaultValueBinding {
         }
     }
 
+
+    private Binding getScriptBinding() {
+
+        Map<String, Object> bindingValues = new HashMap<>();
+
+        bindingValues.put("beanLocator", beanLocator);
+        bindingValues.put("dataManager", dataManager);
+        bindingValues.put("timeSource", timeSource);
+        bindingValues.put("metadata", metadata);
+
+        return new Binding(bindingValues);
+    }
     private Object formatFromDatatypeToObject(String defaultValue, Datatype<Object> datatype) {
         try {
             return datatype.parse(defaultValue);
