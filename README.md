@@ -67,5 +67,5 @@ To see this application component in action, check out this example: [cuba-examp
 ### Creation of Entities with configured Default Values
 ![Customer Editor with default values](/img/6-customer-edit.png)
 
-![Customer Editor with default values](/img/6-order-edit.png)
+![Customer Editor with default values](/img/7-order-edit.png)
 
