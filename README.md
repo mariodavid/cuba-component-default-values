@@ -58,9 +58,14 @@ To see this application component in action, check out this example: [cuba-examp
 ### Default Value Entity Browse
 ![Default Value Entity Browse](/img/1-default-value-entity-browse.png)
 
-### Entity Default Value Details
-![Customer Editor with default values](https://github.com/mariodavid/cuba-component-default-values/blob/master/img/2-default-value-entity-edit.png)
-![Customer Editor with default values](https://github.com/mariodavid/cuba-component-default-values/blob/master/img/6-customer-edit.png)
-![Customer Editor with default values](https://github.com/mariodavid/cuba-component-default-values/blob/master/img/6-customer-edit.png)
-![Customer Editor with default values](https://github.com/mariodavid/cuba-component-default-values/blob/master/img/6-customer-edit.png)
+### Entity Default Value Configuration
+![Customer Editor with default values](/img/2-default-value-entity-edit.png)
+![Customer Editor with default values](/img/3-default-value-entity-edit-attribute-static-value-edit.png)
+![Customer Editor with default values](/img/4-default-value-entity-edit-new.png)
+![Customer Editor with default values](/img/5-default-value-entity-edit-new-dynamic-value.png)
+
+### Creation of Entities with configured Default Values
+![Customer Editor with default values](/img/6-customer-edit.png)
+
+![Customer Editor with default values](/img/6-order-edit.png)
 
