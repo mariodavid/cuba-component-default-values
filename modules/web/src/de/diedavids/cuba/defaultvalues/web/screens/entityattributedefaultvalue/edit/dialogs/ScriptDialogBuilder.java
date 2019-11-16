@@ -39,7 +39,7 @@ public class ScriptDialogBuilder implements DefaultValueTypeDialogBuilder<String
             Consumer<String> afterOkHandler,
             Runnable afterCancelHandler
     ) {
-        return dialogs.createInputDialog(frameOwner)
+        InputDialog dialog = dialogs.createInputDialog(frameOwner)
                 .withCaption(
                         messageBundle.getMessage("setScriptDefaultValue")
                 )
@@ -64,6 +64,11 @@ public class ScriptDialogBuilder implements DefaultValueTypeDialogBuilder<String
                     }
                 }).build();
 
+        dialog.getDialogWindow()
+                .setResizable(true);
+
+        return dialog;
+
     }
 
     private void setScriptAttributeDefaultValue(EntityAttributeDefaultValue entityAttributeDefaultValue, String scriptValue) {
@@ -75,6 +80,8 @@ public class ScriptDialogBuilder implements DefaultValueTypeDialogBuilder<String
     private Field scriptField(EntityAttributeDefaultValue entityAttributeDefaultValue) {
         SourceCodeEditor field = uiComponents.create(SourceCodeEditor.class);
         field.setMode(SourceCodeEditor.Mode.Groovy);
+        field.setContextHelpText(messageBundle.getMessage("scriptHelp"));
+        field.setContextHelpTextHtmlEnabled(true);
         field.setWidthFull();
         field.setHeight("400px");
         field.setRequired(true);
