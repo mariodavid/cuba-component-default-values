@@ -51,8 +51,10 @@ The Changelog also contains information about breaking changes and tips on how t
 
 ### Example usage
 To see this application component in action, check out this example: [cuba-example-using-default-values](https://github.com/mariodavid/cuba-example-using-default-values).
+It contains all examples of all the screenshots.
 
 ### Creation of Entities with configured Default Values
+
 ![Customer Editor with default values](/img/6-customer-edit.png)
 
 ![Customer Editor with default values](/img/7-order-edit.png)
@@ -80,6 +82,7 @@ Selecting one Entity opens the Details screen that shows the all attributes of t
 
 There are multiple types of default values that can be configured for an entity attribute.
 
+![Customer Editor with default values](/img/4-default-value-entity-edit-new.png)
 
 #### Static Value
 
@@ -164,14 +167,14 @@ The interface requires the following methods to be implemented:
 * `get` - execution of the logic to return the default value
 
 
-Additionally a translation value has be set in the main message pack of the web component:
+Additionally a translation value has be set in the main message pack of the web module:
 
 ```
 dynamicValueProvider.customerTypeFavorite = Favorite Customer Type
 ```
 
-`dynamicValueProvider.` - prefix for translation of dynamic value providers
-`customerTypeFavorite` - the code of the dynamic value provider
+* `dynamicValueProvider.` - prefix for translation of dynamic value providers
+* `customerTypeFavorite` - the code of the dynamic value provider
 
 
 With that, the dynamic value appears in the default value configuration UI and can be selected for all entity
@@ -224,6 +227,7 @@ The following attribute are available in the script:
 * `timeSource` - Global time source interface from CUBA (com.haulmont.cuba.core.global.TimeSource) 
 
 
-Note: The return type has to match the datatype of the entity attribute. If no value is returned, the Groovy evaluator will treat that execution as false
-![Customer Editor with default values](/img/4-default-value-entity-edit-new.png)
+NOTE: The return type has to match the datatype of the entity attribute. 
+If no value is returned, the Groovy evaluator will treat that execution as false
+
 
