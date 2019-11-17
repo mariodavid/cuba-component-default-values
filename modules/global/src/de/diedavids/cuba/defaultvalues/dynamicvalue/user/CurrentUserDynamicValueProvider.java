@@ -1,7 +1,8 @@
-package de.diedavids.cuba.defaultvalues.dynamicvalue;
+package de.diedavids.cuba.defaultvalues.dynamicvalue.user;
 
 import com.haulmont.cuba.core.global.UserSessionSource;
 import com.haulmont.cuba.security.entity.User;
+import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProvider;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;

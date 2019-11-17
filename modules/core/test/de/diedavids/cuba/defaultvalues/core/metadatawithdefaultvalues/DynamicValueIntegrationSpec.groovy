@@ -3,11 +3,9 @@ package de.diedavids.cuba.defaultvalues.core.metadatawithdefaultvalues
 
 import com.haulmont.cuba.security.entity.UserRole
 import de.diedavids.cuba.defaultvalues.core.DefaultValuesIntegrationSpec
-import de.diedavids.cuba.defaultvalues.dynamicvalue.CurrentUserDynamicValueProvider
-import de.diedavids.cuba.defaultvalues.dynamicvalue.TodayDateProvider
+import de.diedavids.cuba.defaultvalues.dynamicvalue.user.CurrentUserDynamicValueProvider
+import de.diedavids.cuba.defaultvalues.dynamicvalue.time.TodayDateProvider
 import de.diedavids.cuba.defaultvalues.entity.example.mlb.MlbPlayer
-
-import java.time.LocalDate
 
 class DynamicValueIntegrationSpec extends DefaultValuesIntegrationSpec {
 

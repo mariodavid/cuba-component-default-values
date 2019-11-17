@@ -57,7 +57,7 @@ It contains all examples of all the screenshots.
 
 ![Customer Editor with default values](/img/6-customer-edit.png)
 
-![Customer Editor with default values](/img/7-order-edit.png)
+![Order Editor with default values](/img/7-order-edit.png)
 
 
 
@@ -67,7 +67,7 @@ It contains all examples of all the screenshots.
 Default Values can be configured for entities via `Administration > Entity Default Values`. It contains a list
 of all Entities that are registered in the application.
 
-![Default Value Entity Browse](/img/1-default-value-entity-browse.png)
+![List of all Default Value Entities](/img/1-default-value-entity-browse.png)
 
 Selecting one Entity opens the Details screen that shows the all attributes of the entity that fulfill this criteria:
 
@@ -75,26 +75,25 @@ Selecting one Entity opens the Details screen that shows the all attributes of t
 * attribute is not annotated with `@SystemLevel` or are part of System level Interfaces (like `createTs` e.g.)
 * attribute is not a 1:N or M:N association
 
-![Customer Editor with default values](/img/3-default-value-entity-edit-attribute-static-value-edit.png)
 
 ### Default Value Types
 
 
 There are multiple types of default values that can be configured for an entity attribute.
 
-![Customer Editor with default values](/img/4-default-value-entity-edit-new.png)
+![default value type selection](/img/4-default-value-entity-edit-new.png)
 
 #### Static Value
 
 A static value is used when a globally pre-configured value should be used for an entity attribute as the default value.
+
+![default value - static value edit](/img/3-default-value-entity-edit-attribute-static-value-edit.png)
 
 Examples:
 
 * _always_ set customer type to `REGULAR` 
 * _always_ set the Group association of a User to `Employees` Group
  
-![Customer Editor with default values](/img/3-default-value-entity-edit-attribute-static-value-edit.png)
-
 
 #### Dynamic Value
 
@@ -108,7 +107,7 @@ Examples:
 * _locale of the current user_ for an attribute with a locale type
 
 
-![Customer Editor with default values](/img/5-default-value-entity-edit-new-dynamic-value.png)
+![default value - dynamic value](/img/5-default-value-entity-edit-new-dynamic-value.png)
 
 There are different dynamic value options for different datatypes. The application component itself defines the following
 dynamic value options:
