@@ -15,7 +15,12 @@ Table of Contents
 
   * [Installation](#installation)
   * [Using the application component](#using-the-application-component)
-
+  * [Default Value Configuration](#default-value-configuration)
+     * [Default Value Types](#default-value-types)
+        * [Static Value](#static-value)
+        * [Dynamic Value](#dynamic-value)
+        * [Session Attribute](#session-attribute)
+        * [Script](#script)
 
 ## Installation
 
@@ -83,7 +88,7 @@ There are multiple types of default values that can be configured for an entity 
 
 ![default value type selection](/img/4-default-value-entity-edit-new.png)
 
-#### Static Value
+### Static Value
 
 A static value is used when a globally pre-configured value should be used for an entity attribute as the default value.
 
@@ -95,7 +100,7 @@ Examples:
 * _always_ set the Group association of a User to `Employees` Group
  
 
-#### Dynamic Value
+### Dynamic Value
 
 Dynamic values compared to static values are evaluated at the time when the instance is created. Those values are dependent
 on the environment.
@@ -124,7 +129,7 @@ dynamic value options:
   
 In case the datatype of the entity attribute has no options for dynamic values, it is not possible to select this option.
 
-##### Custom Dynamic Values
+#### Custom Dynamic Values
 
 It is also possible to create application specific dynamic value options. The application component defines an interface
 [DynamicValueProvider<T>](https://github.com/mariodavid/cuba-component-default-values/blob/master/modules/global/src/de/diedavids/cuba/defaultvalues/dynamicvalue/DynamicValueProvider.java)
@@ -181,7 +186,7 @@ dynamicValueProvider.customerTypeFavorite = Favorite Customer Type
 With that, the dynamic value appears in the default value configuration UI and can be selected for all entity
 attributes that have the datatype `CustomerType`. 
 
-#### Session Attribute
+### Session Attribute
 
 A session attribute can also be placed into a entity attribute as a default value.
 
@@ -211,7 +216,7 @@ set the default country to `China` in the session. With a configured session att
 for a new customers country is now `China`.
 
 
-#### Script
+### Script
 
 The last option is a script based default value. This option allows to define a groovy script, that programmatically
 determines the default value at the time when a new entity instance is created.
