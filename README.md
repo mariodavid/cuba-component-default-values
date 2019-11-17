@@ -118,7 +118,9 @@ dynamic value options:
 * Date
   * Today
 * LocalDate
+  * Yesterday
   * Today
+  * Tomorrow
   
 In case the datatype of the entity attribute has no options for dynamic values, it is not possible to select this option.
 
