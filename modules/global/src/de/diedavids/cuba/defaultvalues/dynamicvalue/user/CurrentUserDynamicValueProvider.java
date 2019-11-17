@@ -1,20 +1,12 @@
 package de.diedavids.cuba.defaultvalues.dynamicvalue.user;
 
-import com.haulmont.cuba.core.global.UserSessionSource;
 import com.haulmont.cuba.security.entity.User;
-import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProvider;
 import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
-
 @Component(CurrentUserDynamicValueProvider.CODE)
-public class CurrentUserDynamicValueProvider implements DynamicValueProvider<User> {
+public class CurrentUserDynamicValueProvider extends UserContextDynamicValueProvider {
 
     static final public String CODE = "ddcdv_CurrentUserDynamicValueProvider";
-
-    @Inject
-    protected UserSessionSource userSessionSource;
-
 
     @Override
     public String getCode() {
@@ -22,12 +14,7 @@ public class CurrentUserDynamicValueProvider implements DynamicValueProvider<Use
     }
 
     @Override
-    public Class<User> getReturnType() {
-        return User.class;
-    }
-
-    @Override
     public User get() {
-        return userSessionSource.getUserSession().getUser();
+        return getUserSession().getUser();
     }
 }
