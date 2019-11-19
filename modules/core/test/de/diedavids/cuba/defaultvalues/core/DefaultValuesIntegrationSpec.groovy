@@ -34,7 +34,7 @@ abstract class DefaultValuesIntegrationSpec extends Specification {
         dataManager = AppBeans.get(DataManager.NAME)
         metadata = cont.metadata()
 
-        clearTable("DDCDV_ENTITY_ATTRIBUTE_DEFAULT_VALUE")
+        clearTable("DDCDV_ENTITY_ATTRIBUTE_DV")
     }
 
     void cleanup() {

@@ -1,6 +1,6 @@
 -- begin DDCDV_ENTITY_ATTRIBUTE_DV
 create table DDCDV_ENTITY_ATTRIBUTE_DV (
-    ID varchar(36) not null,
+    ID uuid,
     VERSION integer not null,
     CREATE_TS timestamp,
     CREATED_BY varchar(50),
@@ -11,7 +11,7 @@ create table DDCDV_ENTITY_ATTRIBUTE_DV (
     ENTITY varchar(255),
     ENTITY_ATTRIBUTE varchar(255),
     --
-    VALUE_ longvarchar,
+    VALUE_ text,
     TYPE_ varchar(50) not null,
     --
     primary key (ID)

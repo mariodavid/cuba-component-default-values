@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @NamePattern("%s: %s|entityAttribute,value")
-@Table(name = "DDCDV_ENTITY_ATTRIBUTE_DEFAULT_VALUE")
+@Table(name = "DDCDV_ENTITY_ATTRIBUTE_DV")
 @Entity(name = "ddcdv_EntityAttributeDefaultValue")
 public class EntityAttributeDefaultValue extends EntityAttributeAwareStandardEntity {
     private static final long serialVersionUID = -2613764553714339761L;

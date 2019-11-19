@@ -211,7 +211,7 @@ configure(coreModule) {
         dbName = 'ddcdv-uHbtK4vsj'
         dbUser = 'sa'
         dbPassword = ''
-    }
+        }
 
     task updateDb(dependsOn: assembleDbScripts, description: 'Updates local database', type: CubaDbUpdate) {
         dbms = 'hsql'
@@ -219,7 +219,7 @@ configure(coreModule) {
         dbName = 'ddcdv-uHbtK4vsj'
         dbUser = 'sa'
         dbPassword = ''
-    }
+        }
 
 
 
