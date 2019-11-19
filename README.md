@@ -14,6 +14,7 @@ Table of Contents
 =================
 
   * [Installation](#installation)
+  * [Supported DBMS](#supported-dbms)
   * [Using the application component](#using-the-application-component)
   * [Default Value Configuration](#default-value-configuration)
      * [Default Value Types](#default-value-types)
@@ -51,6 +52,16 @@ dependencies {
 
 Information on changes that happen through the different versions of the application component can be found in the [CHANGELOG](https://github.com/mariodavid/cuba-component-default-values/blob/master/CHANGELOG.md).
 The Changelog also contains information about breaking changes and tips on how to resolve them.
+
+## Supported DBMS
+
+The following databases are supported by this application component:
+
+* HSQLDB
+* PostgreSQL
+* MySQL
+
+All other DMBS systems are also possible to work with by the fact that CUBA studio generates the corresponding init / update scripts within the application.
 
 ## Using the application component
 
