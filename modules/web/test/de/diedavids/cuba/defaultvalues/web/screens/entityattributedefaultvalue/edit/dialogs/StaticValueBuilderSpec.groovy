@@ -1,23 +1,17 @@
 package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs
 
-import com.haulmont.chile.core.datatypes.impl.IntegerDatatype
+
 import com.haulmont.chile.core.datatypes.impl.StringDatatype
 import com.haulmont.cuba.core.global.AppBeans
 import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog
-import com.haulmont.cuba.gui.components.Component
-import com.haulmont.cuba.gui.components.Form
 import com.haulmont.cuba.gui.components.TextField
 import com.haulmont.cuba.gui.screen.MessageBundle
 import com.haulmont.cuba.gui.screen.Screen
-import com.haulmont.cuba.gui.util.OperationResult
 import com.haulmont.cuba.security.entity.User
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue
-import de.diedavids.cuba.defaultvalues.web.WebIntegrationSpec
 import de.diedavids.cuba.metadataextensions.EntityDialogs
 
-class StaticValueBuilderSpec extends WebIntegrationSpec {
-
-    StaticValueDialogBuilder sut
+class StaticValueBuilderSpec extends DefaultValueBuilderSpec {
 
 
     def setup() {
@@ -38,7 +32,7 @@ class StaticValueBuilderSpec extends WebIntegrationSpec {
         EntityAttributeDefaultValue entityAttributeDefaultValue = userDefaultValue('login')
 
         when:
-        Screen inputDialog = showDialog(entityAttributeDefaultValue)
+        Screen inputDialog = showScreen(entityAttributeDefaultValue)
 
         and:
         TextField loginField = inputComponent(inputDialog, "login", TextField)
@@ -56,12 +50,7 @@ class StaticValueBuilderSpec extends WebIntegrationSpec {
         entityAttributeDefaultValue.value = "foo"
 
         and:
-        Screen inputDialog = sut.createDialog(
-                entityAttributeDefaultValue,
-                mainWindow(),
-                {},
-                {}
-        ).show()
+        Screen inputDialog = showScreen(entityAttributeDefaultValue)
 
 
         TextField loginField = inputComponent(inputDialog, "login", TextField)
@@ -83,14 +72,7 @@ class StaticValueBuilderSpec extends WebIntegrationSpec {
         EntityAttributeDefaultValue entityAttributeDefaultValue = userDefaultValue('login')
 
         when:
-        InputDialog inputDialog = sut.createDialog(
-                entityAttributeDefaultValue,
-                mainWindow(),
-                {},
-                {}
-        )
-
-        inputDialog.show()
+        InputDialog inputDialog = showDialog(entityAttributeDefaultValue)
 
         then:
         inputDialog.parameters[0].id == 'login'
@@ -127,22 +109,6 @@ class StaticValueBuilderSpec extends WebIntegrationSpec {
         inputDialogWasCancelled
     }
 
-    private OperationResult close(Screen inputDialog) {
-        inputDialog.close(InputDialog.INPUT_DIALOG_OK_ACTION)
-    }
-
-    private Screen showDialog(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        sut.createDialog(
-                entityAttributeDefaultValue,
-                mainWindow(),
-                {},
-                {}
-        ).show()
-    }
-
-    private OperationResult cancel(InputDialog inputDialog) {
-        inputDialog.close(InputDialog.INPUT_DIALOG_CANCEL_ACTION)
-    }
 
     EntityAttributeDefaultValue userDefaultValue(String entityAttribute) {
         EntityAttributeDefaultValue entityAttributeDefaultValue = new EntityAttributeDefaultValue()
@@ -151,11 +117,6 @@ class StaticValueBuilderSpec extends WebIntegrationSpec {
         entityAttributeDefaultValue.entityAttribute = userMetaClass.getProperty(entityAttribute)
 
         return entityAttributeDefaultValue
-    }
-
-    private <T extends Component> T inputComponent(Screen inputDialog, String inputComponentId, Class<T> targetClass) {
-        Form form = inputDialog.getWindow().getComponent("form") as Form
-        (T) form.getComponent(inputComponentId)
     }
 
 }

@@ -3,16 +3,14 @@ package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.
 
 import com.haulmont.cuba.gui.UiComponents
 import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog
+import com.haulmont.cuba.gui.components.SourceCodeEditor
 import com.haulmont.cuba.gui.screen.MessageBundle
+import com.haulmont.cuba.gui.screen.Screen
 import com.haulmont.cuba.security.entity.User
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue
-import de.diedavids.cuba.defaultvalues.web.WebIntegrationSpec
+import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType
 
-import java.util.function.Consumer
-
-class ScriptDialogBuilderSpec extends WebIntegrationSpec {
-
-    ScriptDialogBuilder sut
+class ScriptDialogBuilderSpec extends DefaultValueBuilderSpec {
 
 
     def setup() {
@@ -24,49 +22,49 @@ class ScriptDialogBuilderSpec extends WebIntegrationSpec {
     }
 
 
-    def "createDialog creates one parameter of the inputDialog for the default value"() {
+    def "createDialog creates a source code editor with the value of the entity attribute default value"() {
 
         given:
         EntityAttributeDefaultValue entityAttributeDefaultValue = userDefaultValue('login')
         entityAttributeDefaultValue.value = "return 'username'"
 
         when:
-        InputDialog inputDialog = sut.createDialog(
-                entityAttributeDefaultValue,
-                mainWindow(),
-                {},
-                {}
-        )
+        Screen inputDialog = showScreen(entityAttributeDefaultValue)
 
         and:
-        def scriptField = inputDialog.parameters.get(0).getField().get()
+        SourceCodeEditor loginScriptField = inputDialog.getWindow().getComponent("script")
 
         then:
-        inputDialog.parameters.size() == 1
-
-        and:
-        scriptField.getValue() == "return 'username'"
-
+        loginScriptField.value == "return 'username'"
     }
 
-    def "createDialog defines one parameter with the key 'script'"() {
+
+
+    def "createDialog takes the valiue of the source code editor and binds it into the default value entity"() {
 
         given:
         EntityAttributeDefaultValue entityAttributeDefaultValue = userDefaultValue('login')
+        entityAttributeDefaultValue.value = "return 'foo'"
+
+
+        and:
+        Screen inputDialog = showScreen(entityAttributeDefaultValue)
+
+        and:
+        SourceCodeEditor loginScriptField = inputDialog.getWindow().getComponent("script")
 
         when:
-        InputDialog inputDialog = sut.createDialog(
-                entityAttributeDefaultValue,
-                mainWindow(),
-                {},
-                {}
-        )
+        loginScriptField.value = "return 'bar'"
 
-        inputDialog.show()
+        and:
+        close(inputDialog)
 
         then:
-        inputDialog.parameters[0].id == 'script'
+        entityAttributeDefaultValue.value == "return 'bar'"
+        entityAttributeDefaultValue.type == EntityAttributeDefaultValueType.SCRIPT
+
     }
+
 
     def "createDialog creates an input dialog that runs the after cancel handler when the dialog is cancelled"() {
 
@@ -78,7 +76,7 @@ class ScriptDialogBuilderSpec extends WebIntegrationSpec {
 
 
         when:
-        InputDialog inputDialog = sut.createDialog(
+        Screen inputDialog = sut.createDialog(
                 entityAttributeDefaultValue,
                 mainWindow(),
                 {},
@@ -88,12 +86,10 @@ class ScriptDialogBuilderSpec extends WebIntegrationSpec {
                         called = true
                     }
                 }
-        )
-
-        inputDialog.show()
+        ).show()
 
         and:
-        inputDialog.close(InputDialog.INPUT_DIALOG_CANCEL_ACTION)
+        cancel(inputDialog)
 
         then:
         called
