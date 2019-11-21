@@ -9,10 +9,10 @@
           maxTotal="20"
           maxWaitMillis="5000"
           name="jdbc/CubaDS"
-          password="cuba"
+          password="postgres"
           type="javax.sql.DataSource"
           url="jdbc:postgresql://localhost/cuba"
-          username="cuba"/>-->
+          username="postgres"/>-->
     <!--<Resource driverClassName="com.mysql.jdbc.Driver"
           maxIdle="2"
           maxTotal="20"

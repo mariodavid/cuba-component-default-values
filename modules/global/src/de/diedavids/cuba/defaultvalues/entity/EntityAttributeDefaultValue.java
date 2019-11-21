@@ -3,14 +3,13 @@ package de.diedavids.cuba.defaultvalues.entity;
 import com.haulmont.chile.core.annotations.NamePattern;
 import de.diedavids.cuba.metadataextensions.entity.EntityAttributeAwareStandardEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @NamePattern("%s: %s|entityAttribute,value")
-@Table(name = "DDCDV_ENTITY_ATTRIBUTE_DV")
+@Table(name = "DDCDV_ENTITY_ATTRIBUTE_DV", indexes = {
+        @Index(name = "IDX_DDCDV_ENTITY_ATTRIBUTE_DEFAULT_VALUE_ENTITY", columnList = "ENTITY")
+})
 @Entity(name = "ddcdv_EntityAttributeDefaultValue")
 public class EntityAttributeDefaultValue extends EntityAttributeAwareStandardEntity {
     private static final long serialVersionUID = -2613764553714339761L;
