@@ -40,7 +40,7 @@ class ScriptDialogBuilderSpec extends DefaultValueBuilderSpec {
 
 
 
-    def "createDialog takes the valiue of the source code editor and binds it into the default value entity"() {
+    def "createDialog takes the value of the source code editor and binds it into the default value entity"() {
 
         given:
         EntityAttributeDefaultValue entityAttributeDefaultValue = userDefaultValue('login')
