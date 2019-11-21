@@ -4,7 +4,7 @@
 
 # CUBA Component - Default Values
 
-This application component lets you configure default values for entities at runtime.
+This application component lets you configure all kind of default values for entity attributes at runtime for better & faster UX... Let your application be the butler of your users - not the other way around!
 
 
 ![Customer Editor with default values](https://github.com/mariodavid/cuba-component-default-values/blob/master/img/6-customer-edit.png)
