@@ -9,6 +9,7 @@ import com.haulmont.cuba.security.entity.User
 import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProviders
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType
+import de.diedavids.cuba.defaultvalues.service.SessionAttributeService
 
 class DefaultValueTypeDialogBuilderSpec extends DefaultValueBuilderSpec {
 
@@ -22,7 +23,8 @@ class DefaultValueTypeDialogBuilderSpec extends DefaultValueBuilderSpec {
                 environment.getDialogs(),
                 Mock(MessageBundle),
                 environment.container.getBean(UiComponents),
-                dynamicValueProviders
+                dynamicValueProviders,
+                Mock(SessionAttributeService)
         )
     }
 
