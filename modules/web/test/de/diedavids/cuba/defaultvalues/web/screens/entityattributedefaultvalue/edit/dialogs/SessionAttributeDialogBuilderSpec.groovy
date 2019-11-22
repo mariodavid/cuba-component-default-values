@@ -3,8 +3,6 @@ package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.
 import com.haulmont.cuba.core.global.Messages
 import com.haulmont.cuba.gui.UiComponents
 import com.haulmont.cuba.gui.components.LookupField
-import com.haulmont.cuba.gui.components.SourceCodeEditor
-import com.haulmont.cuba.gui.components.TextInputField
 import com.haulmont.cuba.gui.screen.MessageBundle
 import com.haulmont.cuba.gui.screen.Screen
 import com.haulmont.cuba.security.entity.User
@@ -43,7 +41,7 @@ class SessionAttributeDialogBuilderSpec extends DefaultValueBuilderSpec {
         Screen inputDialog = showScreen(entityAttributeDefaultValue)
 
         and:
-        LookupField<String> emailSessionAttributeLookupField = inputDialog.getWindow().getComponent("sessionAttribute")
+        LookupField<String> emailSessionAttributeLookupField = sessionAttributeInputComponent(inputDialog)
 
         then:
         emailSessionAttributeLookupField.options.options.count() == 2
@@ -62,7 +60,7 @@ class SessionAttributeDialogBuilderSpec extends DefaultValueBuilderSpec {
         Screen inputDialog = showScreen(entityAttributeDefaultValue)
 
         and:
-        LookupField<String> emailSessionAttributeLookupField = inputDialog.getWindow().getComponent("sessionAttribute")
+        LookupField<String> emailSessionAttributeLookupField = sessionAttributeInputComponent(inputDialog)
 
         then:
         emailSessionAttributeLookupField.value == ':session$defaultEmailAddress'
@@ -81,7 +79,7 @@ class SessionAttributeDialogBuilderSpec extends DefaultValueBuilderSpec {
         Screen inputDialog = showScreen(entityAttributeDefaultValue)
 
         and:
-        LookupField<String> emailSessionAttributeLookupField = inputDialog.getWindow().getComponent("sessionAttribute")
+        LookupField<String> emailSessionAttributeLookupField = sessionAttributeInputComponent(inputDialog)
 
         then:
         emailSessionAttributeLookupField.required
@@ -103,7 +101,7 @@ class SessionAttributeDialogBuilderSpec extends DefaultValueBuilderSpec {
         Screen inputDialog = showScreen(entityAttributeDefaultValue)
 
         and:
-        LookupField<String> emailSessionAttributeLookupField = inputDialog.getWindow().getComponent("sessionAttribute")
+        LookupField<String> emailSessionAttributeLookupField = sessionAttributeInputComponent(inputDialog)
 
         when:
         emailSessionAttributeLookupField.value = ':session$defaultEmailAddress'
@@ -115,6 +113,10 @@ class SessionAttributeDialogBuilderSpec extends DefaultValueBuilderSpec {
         entityAttributeDefaultValue.value == ':session$defaultEmailAddress'
         entityAttributeDefaultValue.type == EntityAttributeDefaultValueType.SESSION_ATTRIBUTE
 
+    }
+
+    private LookupField<String> sessionAttributeInputComponent(Screen inputDialog) {
+        inputDialog.getWindow().getComponent("sessionAttribute") as LookupField<String>
     }
 
     EntityAttributeDefaultValue userDefaultValue(String entityAttribute) {

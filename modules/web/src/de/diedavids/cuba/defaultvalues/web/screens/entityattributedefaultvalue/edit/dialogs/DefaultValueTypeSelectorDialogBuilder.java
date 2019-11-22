@@ -1,10 +1,6 @@
 package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs;
 
 
-import com.haulmont.chile.core.datatypes.Datatype;
-import com.haulmont.chile.core.model.MetaProperty;
-import com.haulmont.cuba.core.entity.Entity;
-import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.gui.Dialogs;
 import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog;
@@ -17,14 +13,12 @@ import com.haulmont.cuba.gui.screen.MessageBundle;
 import de.diedavids.cuba.defaultvalues.dynamicvalue.DynamicValueProviders;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValue;
 import de.diedavids.cuba.defaultvalues.entity.EntityAttributeDefaultValueType;
-import de.diedavids.cuba.entitysoftreference.EntitySoftReferenceDatatype;
-import de.diedavids.cuba.metadataextensions.EntityDialogs;
+import de.diedavids.cuba.defaultvalues.service.SessionAttributeService;
 
 import java.util.function.Consumer;
 
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_CANCEL_ACTION;
 import static com.haulmont.cuba.gui.app.core.inputdialog.InputDialog.INPUT_DIALOG_OK_ACTION;
-import static de.diedavids.cuba.metadataextensions.EntityAttributeInputParameter.entityAttributeParameter;
 
 public class DefaultValueTypeSelectorDialogBuilder implements DefaultValueTypeDialogBuilder<EntityAttributeDefaultValueType> {
 
@@ -32,18 +26,21 @@ public class DefaultValueTypeSelectorDialogBuilder implements DefaultValueTypeDi
     private final Dialogs dialogs;
     private final UiComponents uiComponents;
     private final DynamicValueProviders dynamicValueProviders;
+    private final SessionAttributeService sessionAttributeService;
 
     public DefaultValueTypeSelectorDialogBuilder(
-            MessageBundle messageBundle,
             Dialogs dialogs,
+            MessageBundle messageBundle,
             UiComponents uiComponents,
-            DynamicValueProviders dynamicValueProviders
+            DynamicValueProviders dynamicValueProviders,
+            SessionAttributeService sessionAttributeService
     ) {
 
         this.messageBundle = messageBundle;
         this.dialogs = dialogs;
         this.uiComponents = uiComponents;
         this.dynamicValueProviders = dynamicValueProviders;
+        this.sessionAttributeService = sessionAttributeService;
     }
 
 
@@ -95,24 +92,15 @@ public class DefaultValueTypeSelectorDialogBuilder implements DefaultValueTypeDi
     }
 
     private void configureOptionEnableProvider(EntityAttributeDefaultValue entityAttributeDefaultValue, RadioButtonGroup radioButtonGroup) {
-        com.vaadin.ui.RadioButtonGroup unwrap = radioButtonGroup.unwrap(com.vaadin.ui.RadioButtonGroup.class);
+        com.vaadin.ui.RadioButtonGroup<EntityAttributeDefaultValueType> unwrap = radioButtonGroup.unwrap(com.vaadin.ui.RadioButtonGroup.class);
 
-        unwrap.setItemEnabledProvider(o -> {
-            EntityAttributeDefaultValueType type = (EntityAttributeDefaultValueType) o;
-
-            if (
-                    type.equals(EntityAttributeDefaultValueType.DYNAMIC_VALUE) &&
-                            noDynamicValueProvidersAvailable(entityAttributeDefaultValue)
-            ) {
-                return false;
-            }
-
-            return true;
-        });
-    }
-
-    private boolean noDynamicValueProvidersAvailable(EntityAttributeDefaultValue entityAttributeDefaultValue) {
-        return dynamicValueProviders.getProvidersFor(entityAttributeDefaultValue.getEntityAttribute()).size() == 0;
+        unwrap.setItemEnabledProvider(
+                new DefaultValueTypeSelectorItemEnabledProvider(
+                        entityAttributeDefaultValue,
+                        dynamicValueProviders,
+                        sessionAttributeService
+                )
+        );
     }
 
 }

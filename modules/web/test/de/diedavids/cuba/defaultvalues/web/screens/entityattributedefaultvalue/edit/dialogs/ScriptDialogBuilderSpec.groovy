@@ -1,8 +1,6 @@
 package de.diedavids.cuba.defaultvalues.web.screens.entityattributedefaultvalue.edit.dialogs
 
-
 import com.haulmont.cuba.gui.UiComponents
-import com.haulmont.cuba.gui.app.core.inputdialog.InputDialog
 import com.haulmont.cuba.gui.components.SourceCodeEditor
 import com.haulmont.cuba.gui.screen.MessageBundle
 import com.haulmont.cuba.gui.screen.Screen
@@ -32,12 +30,11 @@ class ScriptDialogBuilderSpec extends DefaultValueBuilderSpec {
         Screen inputDialog = showScreen(entityAttributeDefaultValue)
 
         and:
-        SourceCodeEditor loginScriptField = inputDialog.getWindow().getComponent("script")
+        SourceCodeEditor loginScriptField = scriptInputComponent(inputDialog)
 
         then:
         loginScriptField.value == "return 'username'"
     }
-
 
 
     def "createDialog takes the value of the source code editor and binds it into the default value entity"() {
@@ -51,7 +48,7 @@ class ScriptDialogBuilderSpec extends DefaultValueBuilderSpec {
         Screen inputDialog = showScreen(entityAttributeDefaultValue)
 
         and:
-        SourceCodeEditor loginScriptField = inputDialog.getWindow().getComponent("script")
+        SourceCodeEditor loginScriptField = scriptInputComponent(inputDialog)
 
         when:
         loginScriptField.value = "return 'bar'"
@@ -95,13 +92,18 @@ class ScriptDialogBuilderSpec extends DefaultValueBuilderSpec {
         called
     }
 
+    private SourceCodeEditor scriptInputComponent(Screen inputDialog) {
+        inputDialog.getWindow().getComponent("script") as SourceCodeEditor
+    }
+
+
     EntityAttributeDefaultValue userDefaultValue(String entityAttribute) {
         EntityAttributeDefaultValue entityAttributeDefaultValue = new EntityAttributeDefaultValue()
         def userMetaClass = metadata.getClass(User)
         entityAttributeDefaultValue.entity = userMetaClass
         entityAttributeDefaultValue.entityAttribute = userMetaClass.getProperty(entityAttribute)
 
-        return entityAttributeDefaultValue;
+        return entityAttributeDefaultValue
     }
 
 }
