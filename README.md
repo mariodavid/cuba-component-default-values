@@ -35,14 +35,6 @@ Table of Contents
 
 The latest version is: [ ![Download](https://api.bintray.com/packages/mariodavid/cuba-components/cuba-component-default-values/images/download.svg) ](https://bintray.com/mariodavid/cuba-components/cuba-component-default-values/_latestVersion)
 
-Note: currently it is required to add the following maven repo to the project:
-
-```
-maven {
-    url  "https://dl.bintray.com/mariodavid/cuba-components"
-}
-```
-
 Add custom application component to your project:
 
 * Artifact group: `de.diedavids.cuba.defaultvalues`

@@ -48,7 +48,7 @@ abstract class WebIntegrationSpec extends Specification {
     protected Screen mainWindow() {
         screens()
                 .create(MainScreen.class, OpenMode.ROOT)
-                .show();
+                .show()
     }
 
 }
