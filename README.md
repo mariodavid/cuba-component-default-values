@@ -61,7 +61,7 @@ The following databases are supported by this application component:
 * PostgreSQL
 * MySQL
 
-All other DMBS systems are also possible to work with by the fact that CUBA studio generates the corresponding init / update scripts within the application.
+All other DBMS systems are also possible to work with by the fact that CUBA studio generates the corresponding init / update scripts within the application.
 
 ## Using the application component
 
