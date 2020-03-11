@@ -30,6 +30,7 @@ Table of Contents
 
 | Platform Version | Add-on Version |
 | ---------------- | -------------- |
+| 7.2.x            | 0.2.x          |
 | 7.1.x            | 0.1.x          |
 
 

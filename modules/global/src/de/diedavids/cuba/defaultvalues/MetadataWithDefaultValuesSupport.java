@@ -11,13 +11,13 @@ public class MetadataWithDefaultValuesSupport extends MetadataImpl {
     DefaultValueBinding defaultValueBinding;
 
     @Override
-    protected <T> T __create(Class<T> entityClass) {
+    protected <T extends Entity> T __create(Class<T> entityClass) {
         T entityInstance = super.__create(entityClass);
-        initDefaultValues((Class<Entity>) entityClass, (Entity) entityInstance);
+        initDefaultValues(entityClass, entityInstance);
         return entityInstance;
     }
 
-    private <U extends Entity> void initDefaultValues(Class<U> entityClass, U entityInstance) {
+    private <T extends Entity> void initDefaultValues(Class<T> entityClass, T entityInstance) {
         defaultValueBinding.bindDefaultValues(entityClass, entityInstance);
     }
 }
